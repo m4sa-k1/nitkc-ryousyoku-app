@@ -4,15 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -25,7 +22,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
         setContent {
@@ -42,13 +39,6 @@ class MainActivity : ComponentActivity() {
                 prefs.edit().putBoolean("predictive_back", isPredictiveBackEnabled).apply()
             }
 
-            // If predictive back is disabled by user, intercept back presses
-            if (!isPredictiveBackEnabled) {
-                BackHandler(enabled = true) {
-                    finish()
-                }
-            }
-
             RyousyokuTheme(isDarkMode = isDarkMode) {
                 CompositionLocalProvider(
                     LocalIndication provides NoRippleIndication
@@ -57,6 +47,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = "main",
+                        // 画面遷移アニメーション完全無効化（ユーザー要望: カクカクした即時切り替え）
                         enterTransition = { androidx.compose.animation.EnterTransition.None },
                         exitTransition = { androidx.compose.animation.ExitTransition.None },
                         popEnterTransition = { androidx.compose.animation.EnterTransition.None },
@@ -101,7 +92,7 @@ object NoRippleIndication : androidx.compose.foundation.IndicationNodeFactory {
     override fun create(interactionSource: InteractionSource): androidx.compose.ui.Modifier.Node {
         return object : androidx.compose.ui.Modifier.Node() {}
     }
-    
+
     override fun equals(other: Any?): Boolean = other === this
     override fun hashCode(): Int = -1
 }

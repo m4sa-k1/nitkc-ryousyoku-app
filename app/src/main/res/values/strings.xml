@@ -1,0 +1,107 @@
+<resources>
+    <string name="back">Back</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_stats">Wishlist</string>
+    <string name="tab_settings">Settings</string>
+    <string name="title_tasks">Tasks</string>
+    <string name="no_tasks">No tasks</string>
+    <string name="no_wishlist_items">No items yet</string>
+    <string name="new_task">New Task</string>
+    <string name="task_placeholder">What do you need to do?</string>
+    <string name="add_task">Add Task</string>
+    <string name="settings_general">General</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_show_loading">Show loading screen</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_app_info">App Info</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_licenses">Open Source Licenses</string>
+    <string name="settings_details">Details</string>
+    <string name="stats_placeholder">Stats data will be shown here</string>
+    <string name="cancel">Cancel</string>
+    <string name="stats_total_completed">Total Completed</string>
+    <string name="stats_quick_rate">24h Completion Rate</string>
+    <string name="past_tasks">Past Tasks</string>
+    <string name="past_tasks_normal">Normal Tasks</string>
+    <string name="past_tasks_wishlist">Wishlist</string>
+    <string name="past_wishlist_items">Past Wishlist</string>
+    <string name="settings_about">About Task App</string>
+    <string name="settings_about_desc">Version info and developer credits</string>
+    <string name="settings_fab_animation">FAB Animation</string>
+    <string name="settings_fab_animation_desc">Animation direction for the + button</string>
+    <string name="fab_anim_up">↑ Up (From Bottom)</string>
+    <string name="fab_anim_down">↓ Down (From Top)</string>
+    <string name="fab_anim_left">← Left (From Right)</string>
+    <string name="fab_anim_right">→ Right (From Left)</string>
+    <string name="fab_anim_none">✕ None</string>
+    <string name="settings_immediate_hide">Hide completed tasks now</string>
+    <string name="settings_immediate_hide_desc">Off: Hide after 15m or app close</string>
+    <string name="confirm">Continue</string>
+    <string name="delete">Delete</string>
+    <string name="settings_edit_home">Edit Home Screen</string>
+    <string name="save">Save</string>
+    <string name="reset_default">Reset to Default</string>
+    <string name="edit_home_desc">Drag the plus button to your preferred position.</string>
+    <string name="settings_mit_license">MIT License</string>
+    <string name="mit_license_text">MIT License\n\nCopyright (c) 2026 m4sak1\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
+    <string name="settings_footer">©2026 m4sak1. Licensed under MIT.</string>
+    <string name="settings_backup">Backup &amp; Restore</string>
+    <string name="settings_export">Backup Data (Export ZIP)</string>
+    <string name="settings_import">Restore Data (Import ZIP)</string>
+    <string name="restore_warning">Restoring a backup will overwrite all current tasks and settings. This action cannot be undone. Are you sure you want to continue?</string>
+    <string name="ok">OK</string>
+    <string name="maintained_by">Maintained by m4sak1</string>
+    <string name="system_default">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="customize">Customize</string>
+    <string name="backup_success">Backup successful</string>
+    <string name="restore_success">Restore successful</string>
+    <string name="restore_failed">Restore failed</string>
+    <string name="settings_accent_color">Accent Color</string>
+    <string name="settings_background_image">Background Image</string>
+    <string name="edit_background">Edit Background</string>
+    <string name="blur_on_off">Blur On/Off</string>
+    <string name="clear">Clear</string>
+    <string name="hex_color_hint">Hex Color Code (e.g., #FF5533)</string>
+    <string name="settings_disable_animations">Disable animations</string>
+    <string name="settings_enter_to_add">Add task with Enter key</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_enable">Enable Task Reminder Notifications</string>
+    <string name="settings_release_notifications">New Release In-App Notifications</string>
+    <string name="settings_notifications_test">Send Test Notification</string>
+    <string name="notification_channel_name">Task Reminders</string>
+    <string name="notification_channel_desc">Reminders for added tasks</string>
+    <string name="notification_reminder_title">Task Reminder</string>
+    <string name="notification_reminder_body">Don\'t forget: %1$s</string>
+    <string name="filter_all">All ▼</string>
+    <string name="filter_starred">Starred ▼</string>
+    <string name="settings_disclaimer">Disclaimer</string>
+    <string name="disclaimer_text">The creator assumes no responsibility for any damage, loss, or trouble caused by the use of this app. Use at your own risk.</string>
+    <string name="settings_glass_mode">Glass Mode</string>
+    <string name="close">Close</string>
+    <string name="add_task_dialog_style">Add Task Style</string>
+    <string name="dialog_style_center">Center</string>
+    <string name="dialog_style_bottom_sheet">Bottom Sheet</string>
+
+    <string-array name="notification_messages_24h">
+        <item>Task Reminder|Don\'t forget about: %1$s!</item>
+        <item>24 hours passed|How is \"%1$s\" going?</item>
+        <item>Time to start|It\'s time to start \"%1$s\"!</item>
+    </string-array>
+    
+    <string-array name="notification_messages_48h">
+        <item>2 days passed|\"%1$s\" is waiting for you!</item>
+        <item>Any progress?|Why not make a little progress on \"%1$s\"?</item>
+        <item>Reminder|Let\'s clear \"%1$s\" and feel refreshed!</item>
+    </string-array>
+    
+    <string-array name="notification_messages_72h">
+        <item>Task from 3 days ago|Are you done with \"%1$s\"?</item>
+        <item>Time to clear it up|Let\'s do \"%1$s\" today!</item>
+        <item>Task check|Consider completing or deleting \"%1$s\".</item>
+    </string-array>
+    
+    <string name="settings_highlight_old_tasks">Highlight Old Tasks</string>
+    <string name="settings_highlight_old_tasks_desc">Highlight the background of tasks added more than 24 hours ago</string>
+</resources>

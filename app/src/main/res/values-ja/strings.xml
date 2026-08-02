@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">戻る</string>
+    <string name="tab_home">ホーム</string>
+    <string name="tab_stats">やりたいこと</string>
+    <string name="tab_settings">設定</string>
+    <string name="title_tasks">タスク</string>
+    <string name="no_tasks">未完了のタスクはありません</string>
+    <string name="no_wishlist_items">まだアイテムがありません</string>
+    <string name="new_task">新しいタスク</string>
+    <string name="task_placeholder">何をしますか？</string>
+    <string name="add_task">追加</string>
+    <string name="settings_general">一般</string>
+    <string name="settings_dark_mode">ダークモード</string>
+    <string name="settings_show_loading">ロード画面を毎回表示</string>
+    <string name="settings_language">言語</string>
+    <string name="settings_app_info">アプリ情報</string>
+    <string name="settings_version">バージョン</string>
+    <string name="settings_licenses">オープンソースライセンス</string>
+    <string name="settings_details">詳細</string>
+    <string name="stats_placeholder">統計データがここに表示されます</string>
+    <string name="cancel">キャンセル</string>
+    <string name="stats_total_completed">総完了タスク数</string>
+    <string name="stats_quick_rate">24時間以内達成率</string>
+    <string name="past_tasks">過去のタスク</string>
+    <string name="past_tasks_normal">通常タスク</string>
+    <string name="past_tasks_wishlist">やりたいこと</string>
+    <string name="past_wishlist_items">過去のやりたいこと</string>
+    <string name="settings_about">Task Appについて</string>
+    <string name="settings_about_desc">バージョン情報と開発者</string>
+    <string name="settings_fab_animation">追加ボタンのアニメーション</string>
+    <string name="settings_fab_animation_desc">＋ボタンの出現・消滅方向</string>
+    <string name="fab_anim_up">↑ 上 (下から出現)</string>
+    <string name="fab_anim_down">↓ 下 (上から出現)</string>
+    <string name="fab_anim_left">← 左 (右から出現)</string>
+    <string name="fab_anim_right">→ 右 (左から出現)</string>
+    <string name="fab_anim_none">✕ 無し</string>
+    <string name="settings_immediate_hide">完了時に即非表示</string>
+    <string name="settings_immediate_hide_desc">オフの場合: 15分後または終了時に非表示</string>
+    <string name="confirm">続行</string>
+    <string name="delete">削除</string>
+    <string name="settings_edit_home">ホーム画面を編集</string>
+    <string name="save">保存</string>
+    <string name="reset_default">デフォルトに戻す</string>
+    <string name="edit_home_desc">プラスボタンを好きな位置にドラッグしてください。</string>
+    <string name="settings_mit_license">MITライセンス</string>
+    <string name="mit_license_text">MIT License\n\nCopyright (c) 2026 m4sak1\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
+    <string name="settings_footer">©2026 m4sak1. Licensed under MIT.</string>
+    <string name="settings_backup">バックアップと復元</string>
+    <string name="settings_export">データをバックアップ (ZIP形式で書き出し)</string>
+    <string name="settings_import">データを復元 (ZIP形式から読み込み)</string>
+    <string name="restore_warning">注意: データを復元すると、現在のすべてのタスクと設定が上書きされます。この操作は取り消せません。続行してもよろしいですか？</string>
+    <string name="ok">OK</string>
+    <string name="maintained_by">m4sak1 によってメンテナンスされています</string>
+    <string name="system_default">システム</string>
+    <string name="theme_light">ライトモード</string>
+    <string name="theme_dark">ダークモード</string>
+    <string name="customize">カスタマイズ</string>
+    <string name="backup_success">バックアップが完了しました</string>
+    <string name="restore_success">復元が完了しました</string>
+    <string name="restore_failed">復元に失敗しました</string>
+    <string name="settings_accent_color">アクセントカラー</string>
+    <string name="settings_background_image">背景画像</string>
+    <string name="edit_background">背景を編集</string>
+    <string name="blur_on_off">ぼかしのオン/オフ</string>
+    <string name="clear">クリア</string>
+    <string name="hex_color_hint">Hex カラーコード (例: #FF5533)</string>
+    <string name="settings_disable_animations">アニメーションを無効化</string>
+    <string name="settings_enter_to_add">エンターキーでタスクを追加</string>
+    <string name="settings_notifications">通知</string>
+    <string name="settings_notifications_enable">リマインダー通知を有効にする</string>
+    <string name="settings_release_notifications">新バージョンのアプリ内通知</string>
+    <string name="settings_notifications_test">テスト通知を送信</string>
+    <string name="notification_channel_name">タスクのリマインダー</string>
+    <string name="notification_channel_desc">追加したタスクのリマインダー</string>
+    <string name="notification_reminder_title">タスクのリマインダー</string>
+    <string name="notification_reminder_body">「%1$s」をお忘れなく！</string>
+    <string name="filter_all">全て ▼</string>
+    <string name="filter_starred">スター付き ▼</string>
+    <string name="settings_disclaimer">免責事項</string>
+    <string name="disclaimer_text">本アプリの利用により生じた損害やトラブルについて、作者は一切の責任を負いません。自己責任でご利用ください。</string>
+    <string name="settings_glass_mode">ガラスモード</string>
+    <string name="close">閉じる</string>
+    <string name="add_task_dialog_style">タスク追加スタイル</string>
+    <string name="dialog_style_center">中央</string>
+    <string name="dialog_style_bottom_sheet">ボトムシート</string>
+
+    <string-array name="notification_messages_24h">
+        <item>タスクのリマインダー|「%1$s」をお忘れなく！</item>
+        <item>24時間が経過しました|「%1$s」は順調ですか？</item>
+        <item>タスクの確認|そろそろ「%1$s」に着手しましょう！</item>
+    </string-array>
+    
+    <string-array name="notification_messages_48h">
+        <item>追加から2日経過|「%1$s」があなたを待っています！</item>
+        <item>進捗いかがですか？|「%1$s」を少しでも進めてみませんか？</item>
+        <item>リマインド|「%1$s」を片付けてスッキリしましょう！</item>
+    </string-array>
+    
+    <string-array name="notification_messages_72h">
+        <item>3日前のタスクです|「%1$s」はもう終わりましたか？</item>
+        <item>そろそろ片付けませんか？|ずっと残っている「%1$s」、今日やりましょう！</item>
+        <item>タスク整理のすすめ|「%1$s」を完了するか、不要なら削除しましょう。</item>
+    </string-array>
+
+    <string name="settings_highlight_old_tasks">古いタスクを強調</string>
+    <string name="settings_highlight_old_tasks_desc">追加から24時間以上経過したタスクの背景をハイライトします</string>
+</resources>

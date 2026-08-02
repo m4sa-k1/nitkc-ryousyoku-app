@@ -48,12 +48,15 @@ val MPlusRoundedFontFamily = FontFamily(
 )
 
 @Composable
-fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun MainScreen(
+    viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    onNavigateToSettings: () -> Unit = {}
+) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedMenuForDialog by remember { mutableStateOf<Menu?>(null) }
     var isImageLoaded by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize().background(BackgroundColor)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (val state = uiState) {
             is MenuState.Loading -> {
                 // Background is handled, overlay will be drawn below
@@ -66,7 +69,7 @@ fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.v
                     )
                 ) {
                     item {
-                        Header()
+                        Header(onNavigateToSettings = onNavigateToSettings)
                     }
                     
                     item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -128,39 +131,55 @@ fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.v
 }
 
 @Composable
-fun Header() {
+fun Header(onNavigateToSettings: () -> Unit = {}) {
     Surface(
-        color = HeaderColor,
-        shadowElevation = 4.dp,
+        color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = "寮食献立",
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp,
-            fontFamily = MPlusRoundedFontFamily,
-            textAlign = TextAlign.Center,
+        Row(
             modifier = Modifier
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(vertical = 24.dp)
-        )
+                .padding(horizontal = 16.dp, vertical = 24.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "寮食献立",
+                color = MaterialTheme.colorScheme.primary, // Used to be white on orange, now orange on background
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp,
+                fontFamily = MPlusRoundedFontFamily,
+                textAlign = TextAlign.Start
+            )
+            
+            Text(
+                text = "⚙️", // Settings icon
+                fontSize = 24.sp,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onNavigateToSettings
+                )
+            )
+        }
     }
 }
 
 @Composable
 fun BlockContainer(title: String, content: @Composable ColumnScope.() -> Unit) {
     Surface(
-        color = CardBackground,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
         shadowElevation = 2.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
+            val borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
             Text(
                 text = title,
-                color = HeaderColor,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = MPlusRoundedFontFamily,
@@ -170,7 +189,7 @@ fun BlockContainer(title: String, content: @Composable ColumnScope.() -> Unit) {
                         val strokeWidth = 2.dp.toPx()
                         val y = size.height - strokeWidth / 2
                         drawLine(
-                            color = BorderColor,
+                            color = borderColor,
                             start = Offset(0f, y),
                             end = Offset(size.width, y),
                             strokeWidth = strokeWidth
@@ -188,6 +207,7 @@ fun BlockContainer(title: String, content: @Composable ColumnScope.() -> Unit) {
 fun LatestMenuBlock(menu: Menu, onClick: () -> Unit, onImageLoaded: () -> Unit) {
     BlockContainer(title = "今週の献立") {
         Surface(
+            color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
@@ -214,7 +234,7 @@ fun LatestMenuBlock(menu: Menu, onClick: () -> Unit, onImageLoaded: () -> Unit) 
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = menu.period,
-            color = Color(0xFF888888),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             fontSize = 14.sp,
             fontFamily = MPlusRoundedFontFamily,
             textAlign = TextAlign.Center,
@@ -229,6 +249,7 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
 
     BlockContainer(title = "過去の献立一覧") {
         Column {
+            val dashColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
             menus.take(displayCount).forEach { menu ->
                 Row(
                     modifier = Modifier
@@ -242,7 +263,7 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
                             val strokeWidth = 1.dp.toPx()
                             val y = size.height - strokeWidth / 2
                             drawLine(
-                                color = Color(0xFFEEEEEE),
+                                color = dashColor,
                                 start = Offset(0f, y),
                                 end = Offset(size.width, y),
                                 strokeWidth = strokeWidth,
@@ -254,7 +275,7 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
                 ) {
                     Text(
                         text = "📄 ${menu.period}",
-                        color = TextColor,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
                         fontFamily = MPlusRoundedFontFamily
                     )
@@ -265,7 +286,7 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Button(
                     onClick = { displayCount += 20 },
-                    colors = ButtonDefaults.buttonColors(containerColor = HeaderColor),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(max = 200.dp)
                 ) {

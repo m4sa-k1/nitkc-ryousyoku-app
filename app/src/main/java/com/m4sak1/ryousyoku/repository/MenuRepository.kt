@@ -24,4 +24,23 @@ class MenuRepository {
             json.decodeFromString(responseData)
         }
     }
+    suspend fun fetchRawMenus(): String = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("https://ryousyoku.m4sak1.me/data/menus.json")
+            .build()
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+            response.body?.string() ?: throw IOException("Empty body")
+        }
+    }
+
+    suspend fun fetchRawSkipPeriods(): String = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("https://ryousyoku.m4sak1.me/data/skip_periods.json")
+            .build()
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+            response.body?.string() ?: throw IOException("Empty body")
+        }
+    }
 }

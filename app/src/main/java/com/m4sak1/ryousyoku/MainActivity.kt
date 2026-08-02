@@ -8,13 +8,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.InteractionSource
@@ -22,9 +17,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -76,40 +71,34 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = "main",
-                        // ── 順方向（タップ）: 即時切替 ──
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
-                        // ── 逆方向（戻るジェスチャー）: ──
-                        // NavHost 2.8+ SeekableTransitionState により
-                        // 上の画面(popExit)と遷移先画面(popEnter)が同時描画される
-                        // → 縮小した隙間から実際の遷移先画面が見える
                         popEnterTransition = { EnterTransition.None },
-                        popExitTransition = {
-                            scaleOut(
-                                targetScale = 0.85f,
-                                transformOrigin = TransformOrigin(0.5f, 0.5f),
-                                animationSpec = tween(300, easing = FastOutSlowInEasing)
-                            )
-                            // fadeOut なし！ 不透明のまま縮小
-                        }
+                        popExitTransition = { ExitTransition.None }
                     ) {
                         composable("main") {
-                            // ── ルート画面: ホーム戻りのみ PredictiveBackHandler ──
-                            ScreenWrapper {
-                                HomeBackWrapper(
-                                    enabled = isPredictiveBackEnabled,
-                                    onBack = { activity?.finish() }
-                                ) {
-                                    MainScreen(
-                                        onNavigateToSettings = { navController.navigate("settings") }
-                                    )
-                                }
+                            // ── ルート画面 (トップ) ──
+                            // backContent = null → 隙間からOSのホーム画面/壁紙が見える
+                            BackGestureWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { activity?.finish() },
+                                backContent = null
+                            ) {
+                                MainScreen(
+                                    onNavigateToSettings = { navController.navigate("settings") }
+                                )
                             }
                         }
                         composable("settings") {
-                            // NavHost が popExitTransition(scaleOut) を適用
-                            // + ScreenWrapper が角丸と暗幕を付加
-                            ScreenWrapper {
+                            // ── 設定画面 ──
+                            // backContent = MainScreen → 隙間からトップ画面が見える
+                            BackGestureWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() },
+                                backContent = {
+                                    MainScreen(onNavigateToSettings = {})
+                                }
+                            ) {
                                 SettingsScreen(
                                     isDarkMode = isDarkMode,
                                     onToggleTheme = toggleTheme,
@@ -123,7 +112,23 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("raw_data/{type}") { backStackEntry ->
                             val type = backStackEntry.arguments?.getString("type") ?: "menus"
-                            ScreenWrapper {
+                            // ── データ表示画面 ──
+                            // backContent = SettingsScreen → 隙間から設定画面が見える
+                            BackGestureWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() },
+                                backContent = {
+                                    SettingsScreen(
+                                        isDarkMode = isDarkMode,
+                                        onToggleTheme = toggleTheme,
+                                        isPredictiveBackEnabled = isPredictiveBackEnabled,
+                                        onTogglePredictiveBack = togglePredictiveBack,
+                                        onNavigateBack = {},
+                                        onNavigateToRawData = {},
+                                        onNavigateToLicenses = {}
+                                    )
+                                }
+                            ) {
                                 RawDataScreen(
                                     type = type,
                                     onNavigateBack = { navController.popBackStack() }
@@ -131,7 +136,23 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable("licenses") {
-                            ScreenWrapper {
+                            // ── OSSライセンス画面 ──
+                            // backContent = SettingsScreen → 隙間から設定画面が見える
+                            BackGestureWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() },
+                                backContent = {
+                                    SettingsScreen(
+                                        isDarkMode = isDarkMode,
+                                        onToggleTheme = toggleTheme,
+                                        isPredictiveBackEnabled = isPredictiveBackEnabled,
+                                        onTogglePredictiveBack = togglePredictiveBack,
+                                        onNavigateBack = {},
+                                        onNavigateToRawData = {},
+                                        onNavigateToLicenses = {}
+                                    )
+                                }
+                            ) {
                                 com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer(
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -145,92 +166,19 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * NavHost のトランジション進行度に連動して角丸＋暗幕を適用するラッパー。
+ * 全画面共通：予測型戻りジェスチャーのアニメーションラッパー。
  *
- * - この画面が「出ていく側」(popExit) のとき:
- *   exitProgress が 0→1 に進み、角丸が 0dp→24dp に変化
- *   (scaleOut は NavHost が適用するため、ここでは角丸のみ担当)
- *
- * - この画面が「遷移先」(popEnter) のとき:
- *   引っ張って隙間が最大になる(enterScrimProgress 0→1)につれて影を濃く(0%→35%)する
+ * 1. 引っ張った方向(swipeEdge)に応じて、画面が左右にずれる（引っ張った側の隙間が大きくなる）
+ * 2. 画面が不透明のまま 1.0 → 0.85 に縮小し、角丸(0dp → 24dp)が適用される
+ * 3. 背面レイヤー(backContent):
+ *    - アプリ内遷移時: 遷移先画面が隙間から見え、引っ張る量に応じて暗幕(0% → 35%)が濃くなる
+ *    - ホーム戻り時(backContent = null): Windowが透過テーマのためOSホーム画面/壁紙が見える
  */
 @Composable
-private fun AnimatedContentScope.ScreenWrapper(
-    content: @Composable () -> Unit
-) {
-    // ── 出ていく側の進行度（角丸用） ──
-    // Visible → PostExit: 0f → 1f
-    val exitProgress by transition.animateFloat(
-        transitionSpec = { tween(300, easing = FastOutSlowInEasing) },
-        label = "exitProgress"
-    ) { state ->
-        when (state) {
-            androidx.compose.animation.EnterExitState.Visible -> 0f
-            androidx.compose.animation.EnterExitState.PostExit -> 1f
-            androidx.compose.animation.EnterExitState.PreEnter -> 0f
-        }
-    }
-
-    // ── 遷移先側の暗幕進行度 (0f → 1f) ──
-    // PreEnter → Visible: 0f → 1f
-    val enterScrimProgress by transition.animateFloat(
-        transitionSpec = { tween(300, easing = FastOutSlowInEasing) },
-        label = "enterScrimProgress"
-    ) { state ->
-        when (state) {
-            androidx.compose.animation.EnterExitState.PreEnter -> 0f
-            androidx.compose.animation.EnterExitState.Visible -> 1f
-            androidx.compose.animation.EnterExitState.PostExit -> 0f
-        }
-    }
-
-    // 戻るジェスチャー中 (PreEnter → Visible) のみ暗幕を適用
-    val isEntering = transition.currentState == androidx.compose.animation.EnterExitState.PreEnter &&
-                     transition.targetState == androidx.compose.animation.EnterExitState.Visible
-
-    val scrimAlpha = if (isEntering) {
-        enterScrimProgress * 0.35f
-    } else {
-        0f
-    }
-
-    val cornerRadius = exitProgress * 24f
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                if (exitProgress > 0f) {
-                    clip = true
-                    shape = RoundedCornerShape(cornerRadius.dp)
-                }
-            }
-    ) {
-        content()
-
-        // ── 暗幕（遷移先として背後に表示中のとき） ──
-        // 引っ張る量(隙間)が最大になるにつれて影が濃く(0% → 35%)なる
-        if (scrimAlpha > 0f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = scrimAlpha))
-            )
-        }
-    }
-}
-
-/**
- * ルート画面（main）専用：ホームへの予測型戻りアニメーション。
- * PredictiveBackHandler で指の進行度と方向を取得し、
- * graphicsLayer で画面を縮小＋角丸＋方向オフセット。
- * テーマ(Theme.Ryousyoku)で windowIsTranslucent=true のため、
- * 縮小した隙間からホーム画面/壁紙が見える。
- */
-@Composable
-private fun HomeBackWrapper(
+private fun BackGestureWrapper(
     enabled: Boolean,
     onBack: () -> Unit,
+    backContent: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     var progress by remember { mutableFloatStateOf(0f) }
@@ -245,34 +193,61 @@ private fun HomeBackWrapper(
                 }
                 onBack()
             } catch (e: CancellationException) {
-                // キャンセル
+                // キャンセル時
             } finally {
                 progress = 0f
             }
         }
     }
 
+    // ── アニメーション計算 ──
     val scale = 1f - (progress * 0.15f)
     val cornerRadius = (progress * 24f).dp
     val maxOffsetPx = 80f
+    // swipeEdge: 0 = 左端から右へスワイプ (画面は右へ移動 → 左側の隙間が大きい)
+    // swipeEdge: 1 = 右端から左へスワイプ (画面は左へ移動 → 右側の隙間が大きい)
     val offsetX = if (swipeEdge == 0) {
-        progress * maxOffsetPx   // EDGE_LEFT → 右にずれる
+        progress * maxOffsetPx
     } else {
-        -progress * maxOffsetPx  // EDGE_RIGHT → 左にずれる
+        -progress * maxOffsetPx
     }
 
+    val scrimAlpha = progress * 0.35f
+
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                translationX = offsetX
-                clip = progress > 0f
-                shape = RoundedCornerShape(cornerRadius)
-            }
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        content()
+        // ── 1. 背面レイヤー（アプリ内遷移先画面＋暗幕） ──
+        if (progress > 0f && backContent != null) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                backContent()
+
+                // 引っ張る量(隙間)に応じて影を濃く(0% → 35%)する暗幕
+                if (scrimAlpha > 0f) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = scrimAlpha))
+                    )
+                }
+            }
+        }
+
+        // ── 2. 手前レイヤー（現在画面：縮小＋角丸＋方向偏りオフセット） ──
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                    translationX = offsetX
+                    clip = progress > 0f
+                    shape = RoundedCornerShape(cornerRadius)
+                }
+        ) {
+            content()
+        }
     }
 }
 

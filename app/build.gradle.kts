@@ -27,9 +27,9 @@ android {
         applicationId = "com.m4sak1.ryousyoku"
         minSdk = 26
         targetSdk = 34
-        versionCode = verBuild
+        val verBetaNum = versionProps.getProperty("beta_version")?.toIntOrNull() ?: 0
         val displayPatch = if (verPatch == -1) 0 else verPatch
-        versionName = if (verBeta != null) "$verMajor.$verMinor.$displayPatch-beta.$verBeta" else "$verMajor.$verMinor.$displayPatch"
+        versionName = if (verBetaNum > 0) "$verMajor.$verMinor.$displayPatch-beta.$verBetaNum" else "$verMajor.$verMinor.$displayPatch"
         
         resValue("string", "app_name", "寮食アプリ")
 

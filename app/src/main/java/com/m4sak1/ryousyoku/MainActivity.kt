@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,8 +54,14 @@ class MainActivity : ComponentActivity() {
                     LocalIndication provides NoRippleIndication
                 ) {
                     val navController = rememberNavController()
-
-                    NavHost(navController = navController, startDestination = "main") {
+                    NavHost(
+                        navController = navController,
+                        startDestination = "main",
+                        enterTransition = { androidx.compose.animation.EnterTransition.None },
+                        exitTransition = { androidx.compose.animation.ExitTransition.None },
+                        popEnterTransition = { androidx.compose.animation.EnterTransition.None },
+                        popExitTransition = { androidx.compose.animation.ExitTransition.None }
+                    ) {
                         composable("main") {
                             MainScreen(
                                 onNavigateToSettings = { navController.navigate("settings") }
@@ -92,14 +97,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-object NoRippleIndication : Indication {
-    private object NoIndicationInstance : IndicationInstance {
-        override fun ContentDrawScope.drawIndication() {
-            drawContent()
-        }
+object NoRippleIndication : androidx.compose.foundation.IndicationNodeFactory {
+    override fun create(interactionSource: InteractionSource): androidx.compose.ui.Modifier.Node {
+        return object : androidx.compose.ui.Modifier.Node() {}
     }
-    @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
-        return NoIndicationInstance
-    }
+    
+    override fun equals(other: Any?): Boolean = other === this
+    override fun hashCode(): Int = -1
 }

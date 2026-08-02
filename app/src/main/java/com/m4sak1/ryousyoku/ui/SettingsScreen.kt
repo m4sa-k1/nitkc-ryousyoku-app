@@ -95,7 +95,7 @@ fun SettingsScreen(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("予測型戻る (Predictive Back)", color = MaterialTheme.colorScheme.onBackground, fontFamily = MPlusRoundedFontFamily)
-                    Text("戻る操作時に戻り先をプレビュー表示\n※ 変更後はアプリを再起動してください", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp, fontFamily = MPlusRoundedFontFamily)
+                    Text("戻る操作時に戻り先をプレビュー表示 (Android 13+)", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp, fontFamily = MPlusRoundedFontFamily)
                 }
                 Switch(checked = isPredictiveBackEnabled, onCheckedChange = { onTogglePredictiveBack() })
             }

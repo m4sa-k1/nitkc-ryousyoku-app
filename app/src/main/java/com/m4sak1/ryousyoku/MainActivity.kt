@@ -1,6 +1,8 @@
 package com.m4sak1.ryousyoku
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,10 +46,24 @@ class MainActivity : ComponentActivity() {
                     LocalIndication provides NoRippleIndication
                 ) {
                     val navController = rememberNavController()
+
+                    // ── 予測型戻る (Predictive Back) トグル実装 ──
+                    // ON (デフォルト):
+                    //   コールバック未登録 → システムが予測型戻りアニメーション
+                    //   (back-to-home等) を自動表示。
+                    // OFF:
+                    //   PRIORITY_OVERLAY でコールバック登録 → システムの予測型
+                    //   アニメーションをバイパスし、即座に戻る。
+                    PredictiveBackToggle(
+                        enabled = !isPredictiveBackEnabled,
+                        navController = navController,
+                        activity = this@MainActivity
+                    )
+
                     NavHost(
                         navController = navController,
                         startDestination = "main",
-                        // 画面遷移アニメーション完全無効化（ユーザー要望: カクカクした即時切り替え）
+                        // 通常の画面遷移アニメーション無効化（ユーザー要望: カクカクした即時切り替え）
                         enterTransition = { androidx.compose.animation.EnterTransition.None },
                         exitTransition = { androidx.compose.animation.ExitTransition.None },
                         popEnterTransition = { androidx.compose.animation.EnterTransition.None },
@@ -83,6 +99,37 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * 予測型戻りの無効化トグル。
+ * enabled = true の場合、PRIORITY_OVERLAY コールバックを登録して
+ * システムの予測型アニメーションをバイパスする (API 33+)。
+ * enabled = false の場合、コールバックを解除してシステムに任せる。
+ */
+@SuppressLint("NewApi")
+@Composable
+private fun PredictiveBackToggle(
+    enabled: Boolean,
+    navController: androidx.navigation.NavController,
+    activity: ComponentActivity
+) {
+    if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        DisposableEffect(Unit) {
+            val callback = android.window.OnBackInvokedCallback {
+                if (!navController.popBackStack()) {
+                    activity.finish()
+                }
+            }
+            activity.onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                callback
+            )
+            onDispose {
+                activity.onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
             }
         }
     }

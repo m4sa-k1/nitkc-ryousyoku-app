@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 予測型戻りアニメーションで画面が縮小した際に
+         背後のホーム画面/壁紙が透けて見えるように、
+         Windowを半透明化するテーマ -->
+    <style name="Theme.Ryousyoku" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+</resources>

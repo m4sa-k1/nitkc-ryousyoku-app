@@ -1,24 +1,23 @@
 package com.m4sak1.ryousyoku
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,13 +25,12 @@ import com.m4sak1.ryousyoku.ui.MainScreen
 import com.m4sak1.ryousyoku.ui.RawDataScreen
 import com.m4sak1.ryousyoku.ui.RyousyokuTheme
 import com.m4sak1.ryousyoku.ui.SettingsScreen
+import kotlin.coroutines.cancellation.CancellationException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Windowを透明にし、ホーム画面戻り時にOSの壁紙/ホーム画面が見えるようにする
-        window.setBackgroundDrawableResource(android.R.color.transparent)
 
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
@@ -55,64 +53,63 @@ class MainActivity : ComponentActivity() {
                     LocalIndication provides NoRippleIndication
                 ) {
                     val navController = rememberNavController()
-
-                    // 予測型戻りオフ設定時のバイパス処理
-                    PredictiveBackBypass(
-                        disabled = !isPredictiveBackEnabled,
-                        navController = navController,
-                        activity = this@MainActivity
-                    )
+                    val activity = LocalContext.current as? ComponentActivity
 
                     NavHost(
                         navController = navController,
                         startDestination = "main",
-                        // 順方向遷移（画面を開く時）: 即時切り替え（カクカク）
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
-                        // 逆方向遷移（アプリ内での戻るジェスチャー時）:
-                        // NavHost 2.8+ の SeekableTransitionState により、
-                        // 上の画面(Settings等)が縮小しながら消え、
-                        // 隙間から「裏にある実際の遷移先画面(MainScreen等)」が透けて見えます。
-                        popEnterTransition = {
-                            scaleIn(
-                                initialScale = 0.95f,
-                                transformOrigin = TransformOrigin(0.5f, 0.5f)
-                            ) + fadeIn()
-                        },
-                        popExitTransition = {
-                            scaleOut(
-                                targetScale = 0.85f,
-                                transformOrigin = TransformOrigin(0.5f, 0.5f)
-                            ) + fadeOut(targetAlpha = 0.3f)
-                        }
+                        popEnterTransition = { EnterTransition.None },
+                        popExitTransition = { ExitTransition.None }
                     ) {
                         composable("main") {
-                            MainScreen(
-                                onNavigateToSettings = { navController.navigate("settings") }
-                            )
+                            PredictiveBackWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { activity?.finish() }
+                            ) {
+                                MainScreen(
+                                    onNavigateToSettings = { navController.navigate("settings") }
+                                )
+                            }
                         }
                         composable("settings") {
-                            SettingsScreen(
-                                isDarkMode = isDarkMode,
-                                onToggleTheme = toggleTheme,
-                                isPredictiveBackEnabled = isPredictiveBackEnabled,
-                                onTogglePredictiveBack = togglePredictiveBack,
-                                onNavigateBack = { navController.popBackStack() },
-                                onNavigateToRawData = { type -> navController.navigate("raw_data/$type") },
-                                onNavigateToLicenses = { navController.navigate("licenses") }
-                            )
+                            PredictiveBackWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() }
+                            ) {
+                                SettingsScreen(
+                                    isDarkMode = isDarkMode,
+                                    onToggleTheme = toggleTheme,
+                                    isPredictiveBackEnabled = isPredictiveBackEnabled,
+                                    onTogglePredictiveBack = togglePredictiveBack,
+                                    onNavigateBack = { navController.popBackStack() },
+                                    onNavigateToRawData = { type -> navController.navigate("raw_data/$type") },
+                                    onNavigateToLicenses = { navController.navigate("licenses") }
+                                )
+                            }
                         }
                         composable("raw_data/{type}") { backStackEntry ->
                             val type = backStackEntry.arguments?.getString("type") ?: "menus"
-                            RawDataScreen(
-                                type = type,
-                                onNavigateBack = { navController.popBackStack() }
-                            )
+                            PredictiveBackWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() }
+                            ) {
+                                RawDataScreen(
+                                    type = type,
+                                    onNavigateBack = { navController.popBackStack() }
+                                )
+                            }
                         }
                         composable("licenses") {
-                            com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer(
-                                modifier = Modifier.fillMaxSize()
-                            )
+                            PredictiveBackWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() }
+                            ) {
+                                com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer(
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
                     }
                 }
@@ -122,30 +119,45 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * 予測型戻りオフ設定時、PRIORITY_OVERLAY でシステムジェスチャーを割り込み即座に戻る
+ * 予測型戻る (Predictive Back) アニメーションラッパー
+ * 戻るジェスチャーの進行度(progress)に合わせて、現在の画面をカード状に縮小(Scale down)し、
+ * 角丸(Rounded corners)をつける標準的なエフェクト(ith-back-to-home-animation)。
  */
-@SuppressLint("NewApi")
 @Composable
-private fun PredictiveBackBypass(
-    disabled: Boolean,
-    navController: androidx.navigation.NavController,
-    activity: ComponentActivity
+fun PredictiveBackWrapper(
+    enabled: Boolean,
+    onBack: () -> Unit,
+    content: @Composable () -> Unit
 ) {
-    if (disabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        DisposableEffect(Unit) {
-            val callback = android.window.OnBackInvokedCallback {
-                if (!navController.popBackStack()) {
-                    activity.finish()
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    if (enabled) {
+        PredictiveBackHandler { progressFlow ->
+            try {
+                progressFlow.collect { backEvent ->
+                    progress = backEvent.progress
                 }
-            }
-            activity.onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                android.window.OnBackInvokedDispatcher.PRIORITY_OVERLAY,
-                callback
-            )
-            onDispose {
-                activity.onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
+                onBack()
+            } catch (e: CancellationException) {
+                progress = 0f
             }
         }
+    }
+
+    val scale = 1f - (progress * 0.12f)
+    val cornerRadius = (progress * 28).dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                clip = progress > 0f
+                shape = RoundedCornerShape(cornerRadius)
+            }
+    ) {
+        content()
     }
 }
 

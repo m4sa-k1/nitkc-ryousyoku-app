@@ -27,7 +27,8 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = verBuild
-        versionName = if (verBeta != null) "$verMajor.$verMinor.$verPatch-beta.$verBeta" else "$verMajor.$verMinor.$verPatch"
+        val displayPatch = if (verPatch == -1) 0 else verPatch
+        versionName = if (verBeta != null) "$verMajor.$verMinor.$displayPatch-beta.$verBeta" else "$verMajor.$verMinor.$displayPatch"
         
         resValue("string", "app_name", "寮食アプリ")
 

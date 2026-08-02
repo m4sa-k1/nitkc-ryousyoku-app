@@ -17,3 +17,7 @@ local.properties
 *.keystore
 keystore.properties
 *.jks
+
+# AI agent and environment configs
+.env
+AI_AGENT_CONTEXT.md

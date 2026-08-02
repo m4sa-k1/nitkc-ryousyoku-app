@@ -95,11 +95,6 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("main") {
                             // ── ルート画面: ホーム戻りのみ PredictiveBackHandler ──
-                            // NavHost のバックスタックが空なので、戻るジェスチャーは
-                            // NavHost を通り抜ける。PredictiveBackHandler でキャッチ。
-                            //
-                            // 同時に、設定→トップ等の back ではこの画面が「遷移先」として
-                            // NavHost に同時描画される。ScreenWrapper の暗幕が適用される。
                             ScreenWrapper {
                                 HomeBackWrapper(
                                     enabled = isPredictiveBackEnabled,
@@ -157,8 +152,8 @@ class MainActivity : ComponentActivity() {
  *   (scaleOut は NavHost が適用するため、ここでは角丸のみ担当)
  *
  * - この画面が「遷移先」(popEnter) のとき:
- *   enterScrim が 1→0 に進み、暗幕が 15%→0% に変化
- *   (遷移先画面を少し暗くして、手前の画面と区別する)
+ *   enterScrim が 1→0 に進み、暗幕が 35%→0% に変化
+ *   (遷移先画面全体をしっかり暗くして、手前の画面と明確に区別する)
  */
 @Composable
 private fun AnimatedContentScope.ScreenWrapper(
@@ -205,14 +200,14 @@ private fun AnimatedContentScope.ScreenWrapper(
     ) {
         content()
 
-        // ── 暗幕（遷移先として表示中のとき） ──
+        // ── 暗幕（遷移先として背後に表示中のとき） ──
         // 戻るジェスチャー中、この画面が背後に見えている遷移先のとき
-        // 少し暗くして手前の画面と区別する
+        // 全体をしっかり暗く(35%の黒)して手前の画面と明確に区別する
         if (enterScrim > 0f) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = enterScrim * 0.15f))
+                    .background(Color.Black.copy(alpha = enterScrim * 0.35f))
             )
         }
     }

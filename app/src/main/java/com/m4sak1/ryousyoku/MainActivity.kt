@@ -152,8 +152,7 @@ class MainActivity : ComponentActivity() {
  *   (scaleOut は NavHost が適用するため、ここでは角丸のみ担当)
  *
  * - この画面が「遷移先」(popEnter) のとき:
- *   enterScrim が 1→0 に進み、暗幕が 35%→0% に変化
- *   (遷移先画面全体をしっかり暗くして、手前の画面と明確に区別する)
+ *   引っ張って隙間が最大になる(enterScrimProgress 0→1)につれて影を濃く(0%→35%)する
  */
 @Composable
 private fun AnimatedContentScope.ScreenWrapper(
@@ -172,20 +171,29 @@ private fun AnimatedContentScope.ScreenWrapper(
         }
     }
 
-    // ── 遷移先側の暗幕進行度 ──
-    // PreEnter → Visible: 1f → 0f
-    val enterScrim by transition.animateFloat(
+    // ── 遷移先側の暗幕進行度 (0f → 1f) ──
+    // PreEnter → Visible: 0f → 1f
+    val enterScrimProgress by transition.animateFloat(
         transitionSpec = { tween(300, easing = FastOutSlowInEasing) },
-        label = "enterScrim"
+        label = "enterScrimProgress"
     ) { state ->
         when (state) {
-            androidx.compose.animation.EnterExitState.PreEnter -> 1f
-            androidx.compose.animation.EnterExitState.Visible -> 0f
+            androidx.compose.animation.EnterExitState.PreEnter -> 0f
+            androidx.compose.animation.EnterExitState.Visible -> 1f
             androidx.compose.animation.EnterExitState.PostExit -> 0f
         }
     }
 
-    // 角丸: exitProgress に応じて 0dp → 24dp
+    // 戻るジェスチャー中 (PreEnter → Visible) のみ暗幕を適用
+    val isEntering = transition.currentState == androidx.compose.animation.EnterExitState.PreEnter &&
+                     transition.targetState == androidx.compose.animation.EnterExitState.Visible
+
+    val scrimAlpha = if (isEntering) {
+        enterScrimProgress * 0.35f
+    } else {
+        0f
+    }
+
     val cornerRadius = exitProgress * 24f
 
     Box(
@@ -201,13 +209,12 @@ private fun AnimatedContentScope.ScreenWrapper(
         content()
 
         // ── 暗幕（遷移先として背後に表示中のとき） ──
-        // 戻るジェスチャー中、この画面が背後に見えている遷移先のとき
-        // 全体をしっかり暗く(35%の黒)して手前の画面と明確に区別する
-        if (enterScrim > 0f) {
+        // 引っ張る量(隙間)が最大になるにつれて影が濃く(0% → 35%)なる
+        if (scrimAlpha > 0f) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = enterScrim * 0.35f))
+                    .background(Color.Black.copy(alpha = scrimAlpha))
             )
         }
     }

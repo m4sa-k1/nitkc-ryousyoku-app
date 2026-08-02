@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,8 +18,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -28,6 +33,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.m4sak1.ryousyoku.R
 import com.m4sak1.ryousyoku.model.Menu
 
 val BackgroundColor = Color(0xFFFFF8F0)
@@ -35,6 +41,11 @@ val HeaderColor = Color(0xFFFF8C42)
 val TextColor = Color(0xFF4A4A4A)
 val CardBackground = Color.White
 val BorderColor = Color(0xFFFFE0C2)
+
+val MPlusRoundedFontFamily = FontFamily(
+    Font(R.font.m_plus_rounded_1c_regular, FontWeight.Normal),
+    Font(R.font.m_plus_rounded_1c_bold, FontWeight.Bold)
+)
 
 @Composable
 fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
@@ -54,7 +65,12 @@ fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.v
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                        ),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         item {
@@ -80,7 +96,11 @@ fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.v
                 }
                 is MenuState.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = "Error: ${state.message}", color = Color.Red)
+                        Text(
+                            text = "Error: ${state.message}", 
+                            color = Color.Red,
+                            fontFamily = MPlusRoundedFontFamily
+                        )
                     }
                 }
             }
@@ -110,10 +130,13 @@ fun Header() {
             text = "寮食献立",
             color = Color.White,
             fontSize = 20.sp,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,
+            fontFamily = MPlusRoundedFontFamily,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(vertical = 24.dp)
+            modifier = Modifier
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(vertical = 24.dp)
         )
     }
 }
@@ -131,7 +154,8 @@ fun BlockContainer(title: String, content: @Composable ColumnScope.() -> Unit) {
                 text = title,
                 color = HeaderColor,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.Bold,
+                fontFamily = MPlusRoundedFontFamily,
                 modifier = Modifier
                     .fillMaxWidth()
                     .drawBehind {
@@ -182,6 +206,7 @@ fun LatestMenuBlock(menu: Menu, onClick: () -> Unit) {
             text = menu.period,
             color = Color(0xFF888888),
             fontSize = 14.sp,
+            fontFamily = MPlusRoundedFontFamily,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -220,7 +245,8 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
                     Text(
                         text = "📄 ${menu.period}",
                         color = TextColor,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        fontFamily = MPlusRoundedFontFamily
                     )
                 }
             }
@@ -233,7 +259,7 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(max = 200.dp)
                 ) {
-                    Text("もっと表示する", color = Color.White, fontSize = 14.sp)
+                    Text("もっと表示する", color = Color.White, fontSize = 14.sp, fontFamily = MPlusRoundedFontFamily)
                 }
             }
         }
@@ -242,7 +268,6 @@ fun ArchiveBlock(menus: List<Menu>, onClick: (Menu) -> Unit) {
 
 @Composable
 fun Footer() {
-    val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp)
@@ -250,12 +275,13 @@ fun Footer() {
         Text(
             text = "© 2026 m4sak1",
             color = Color(0xFF999999),
-            fontSize = 12.sp
+            fontSize = 12.sp,
+            fontFamily = MPlusRoundedFontFamily
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             FooterLink("利用規約", "https://ryousyoku.m4sak1.me/terms.html")
-            Text(" | ", color = Color(0xFFDDDDDD), fontSize = 12.sp)
+            Text(" | ", color = Color(0xFFDDDDDD), fontSize = 12.sp, fontFamily = MPlusRoundedFontFamily)
             FooterLink("しくみ", "https://ryousyoku.m4sak1.me/about.html")
         }
         FooterLink("ソース(リンクは変更される可能性があります)", "https://www.kagawa-nct.ac.jp/dormitoryE/kondate.pdf")
@@ -269,6 +295,7 @@ fun FooterLink(text: String, url: String) {
         text = text,
         color = HeaderColor,
         fontSize = 12.sp,
+        fontFamily = MPlusRoundedFontFamily,
         textDecoration = TextDecoration.Underline,
         modifier = Modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -303,40 +330,34 @@ fun ImageModal(menu: Menu, onDismiss: () -> Unit) {
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = true,
-            dismissOnClickOutside = true
+            dismissOnClickOutside = true,
+            decorFitsSystemWindows = false
         )
     ) {
+        var scale by remember { mutableFloatStateOf(1f) }
+        var offset by remember { mutableStateOf(Offset.Zero) }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xD9000000)) // 0.85 alpha black
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onDismiss
-                ),
-            contentAlignment = Alignment.Center
+                .background(Color(0xD9000000))
         ) {
-            Text(
-                text = "×",
-                color = Color.White,
-                fontSize = 40.sp,
+            val context = LocalContext.current
+            Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 20.dp, end = 30.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onDismiss
-                    )
-            )
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize().padding(16.dp)
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            val maxOffsetX = (size.width * (scale - 1)) / 2
+                            val maxOffsetY = (size.height * (scale - 1)) / 2
+                            offset = Offset(
+                                x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
+                                y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                            )
+                        }
+                    }
             ) {
-                val context = LocalContext.current
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(menu.imageUrl)
@@ -345,28 +366,54 @@ fun ImageModal(menu: Menu, onDismiss: () -> Unit) {
                     contentDescription = "Expanded Image",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false)
-                        .clip(RoundedCornerShape(8.dp))
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            translationX = offset.x
+                            translationY = offset.y
+                        }
                 )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            // Close Button
+            Text(
+                text = "×",
+                color = Color.White,
+                fontSize = 40.sp,
+                fontFamily = MPlusRoundedFontFamily,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(top = 20.dp, end = 30.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onDismiss
+                    )
+            )
 
-                Surface(
-                    color = Color(0x33FFFFFF), // 0.2 alpha white
-                    shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x66FFFFFF)),
-                    modifier = Modifier.clickable {
+            // Download Button
+            Surface(
+                color = Color(0x33FFFFFF), // 0.2 alpha white
+                shape = RoundedCornerShape(8.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x66FFFFFF)),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(bottom = 32.dp)
+                    .clickable {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(menu.pdfUrl)))
                     }
-                ) {
-                    Text(
-                        text = "📥 元のPDFを開く・ダウンロード",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                }
+            ) {
+                Text(
+                    text = "📥 元のPDFを開く・ダウンロード",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = MPlusRoundedFontFamily,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
             }
         }
     }

@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("settings") {
                             // ── 設定画面 ──
-                            // backContent = MainScreen → 隙間からトップ画面が見える
+                            // backContent = MainScreen → 隙間からトップ画面が事前描画される
                             BackGestureWrapper(
                                 enabled = isPredictiveBackEnabled,
                                 onBack = { navController.popBackStack() },
@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
                         composable("raw_data/{type}") { backStackEntry ->
                             val type = backStackEntry.arguments?.getString("type") ?: "menus"
                             // ── データ表示画面 ──
-                            // backContent = SettingsScreen → 隙間から設定画面が見える
+                            // backContent = SettingsScreen → 隙間から設定画面が事前描画される
                             BackGestureWrapper(
                                 enabled = isPredictiveBackEnabled,
                                 onBack = { navController.popBackStack() },
@@ -137,7 +137,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("licenses") {
                             // ── OSSライセンス画面 ──
-                            // backContent = SettingsScreen → 隙間から設定画面が見える
+                            // backContent = SettingsScreen → 隙間から設定画面が事前描画される
                             BackGestureWrapper(
                                 enabled = isPredictiveBackEnabled,
                                 onBack = { navController.popBackStack() },
@@ -168,11 +168,9 @@ class MainActivity : ComponentActivity() {
 /**
  * 全画面共通：予測型戻りジェスチャーのアニメーションラッパー。
  *
- * 1. 引っ張った方向(swipeEdge)に応じて、画面が左右にずれる（引っ張った側の隙間が大きくなる）
- * 2. 画面が不透明のまま 1.0 → 0.85 に縮小し、角丸(0dp → 24dp)が適用される
- * 3. 背面レイヤー(backContent):
- *    - アプリ内遷移時: 遷移先画面が隙間から見え、引っ張る量に応じて暗幕(0% → 35%)が濃くなる
- *    - ホーム戻り時(backContent = null): Windowが透過テーマのためOSホーム画面/壁紙が見える
+ * backContent を常に背面に事前レンダリングしておくことで、
+ * スワイプ開始時のコンポジション遅延（ラグ）を完全に排除。
+ * 指を離した際の遷移もミリ秒単位でスムーズに完了する。
  */
 @Composable
 private fun BackGestureWrapper(
@@ -194,7 +192,6 @@ private fun BackGestureWrapper(
                 onBack()
             } catch (e: CancellationException) {
                 // キャンセル時
-            } finally {
                 progress = 0f
             }
         }
@@ -204,8 +201,6 @@ private fun BackGestureWrapper(
     val scale = 1f - (progress * 0.15f)
     val cornerRadius = (progress * 24f).dp
     val maxOffsetPx = 80f
-    // swipeEdge: 0 = 左端から右へスワイプ (画面は右へ移動 → 左側の隙間が大きい)
-    // swipeEdge: 1 = 右端から左へスワイプ (画面は左へ移動 → 右側の隙間が大きい)
     val offsetX = if (swipeEdge == 0) {
         progress * maxOffsetPx
     } else {
@@ -218,8 +213,10 @@ private fun BackGestureWrapper(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // ── 1. 背面レイヤー（アプリ内遷移先画面＋暗幕） ──
-        if (progress > 0f && backContent != null) {
+        // ── 1. 背面レイヤー（アプリ内遷移先画面：常に事前レンダリング） ──
+        // progress > 0f の条件を外し常時レンダリングすることで
+        // スワイプ開始時の初回コンポジションによるラグを完全に排除
+        if (backContent != null) {
             Box(modifier = Modifier.fillMaxSize()) {
                 backContent()
 

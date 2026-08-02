@@ -71,14 +71,19 @@ class MainActivity : ComponentActivity() {
                         // 順方向遷移（ボタンタップ等）: アニメーションなし（即時切替）
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
-                        // 逆方向遷移（戻る）: スライド+フェードアニメーション
-                        // 予測型戻りジェスチャー時にこのアニメーションが
-                        // 指の位置に連動してスクラブ再生される。
+                        // 逆方向遷移（戻る）: ページ縮小（スケールダウン）+ フェード
+                        // 予測型戻りジェスチャー時に現在のページが小さくなり、裏の遷移先が見える演出。
                         popEnterTransition = {
-                            slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn()
+                            androidx.compose.animation.scaleIn(
+                                initialScale = 0.92f,
+                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0.5f)
+                            ) + fadeIn()
                         },
                         popExitTransition = {
-                            slideOutHorizontally(targetOffsetX = { it / 3 }) + fadeOut()
+                            androidx.compose.animation.scaleOut(
+                                targetScale = 0.85f,
+                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0.5f)
+                            ) + fadeOut(targetAlpha = 0.2f)
                         }
                     ) {
                         composable("main") {

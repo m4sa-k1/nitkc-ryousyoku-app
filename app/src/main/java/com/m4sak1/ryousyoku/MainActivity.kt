@@ -2,14 +2,19 @@ package com.m4sak1.ryousyoku
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.*
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,9 +32,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // ウィンドウ背景を完全に透明にする
-        // → トップ画面からホームに戻る際にOSのランチャー/壁紙が隙間から透けて見える
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        // NOTE: window背景は変更しない。
+        // back-to-home アニメーション (https://developer.android.com/about/versions/16/images/back-to-home.mp4)
+        // は android:enableOnBackInvokedCallback="true" (AndroidManifest.xml) を設定するだけで
+        // Android 14+ (API 34+) においてシステムが自動的に提供する。
+        // window.setBackgroundDrawable(transparent) は逆にシステムアニメーションを壊すため不要。
 
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
@@ -61,33 +68,39 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // NavHost 2.8+ の SeekableTransitionState により、
-                    // 戻るジェスチャー中に「上の画面（popExit）」と「遷移先画面（popEnter）」が
-                    // 同時レンダリングされ、隙間から遷移先が見える。
+                    // ─── NavHost 2.8+ の SeekableTransitionState による予測型戻り実装 ───
                     //
-                    // 通常の進む遷移: None（即時カクカク）
-                    // 戻る遷移:
-                    //   popExit: 画面が縮小＋フェードアウト（指に追従してスクラブ再生）
-                    //   popEnter: 裏の遷移先画面が少し小さい状態から等倍に戻る（見えている状態）
+                    // 通常の forward 遷移 (タップ): None (即時カクカク)
+                    //
+                    // 戻る遷移 (popEnter/popExit):
+                    //   - NavHost 2.8+ はバックスタックの前の画面(popEnter)と
+                    //     現在の画面(popExit)を同時に描画する (SeekableTransitionState)
+                    //   - 指のスワイプ進行度に合わせてリアルタイムにスクラブ再生される
+                    //   - popExitTransition: 現在画面が縮小＋フェードアウト
+                    //   - popEnterTransition: 遷移先画面が背後で見えている（縮小状態から等倍へ）
+                    //
+                    // ホーム戻り (バックスタックが空になる場合):
+                    //   - NavHost を通り抜けてシステムへ委譲
+                    //   - AndroidManifest の enableOnBackInvokedCallback="true" が機能し、
+                    //     Android 14+ でシステムが back-to-home アニメーションを自動表示
                     NavHost(
                         navController = navController,
                         startDestination = "main",
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
                         popEnterTransition = {
+                            // 遷移先画面（背後）: 少し小さい状態から等倍に戻る
                             scaleIn(
-                                initialScale = 0.92f,
-                                animationSpec = tween(300)
+                                initialScale = 0.9f,
+                                animationSpec = tween(300, easing = FastOutSlowInEasing)
                             ) + fadeIn(animationSpec = tween(300))
                         },
                         popExitTransition = {
+                            // 現在画面（手前）: 縮小しながらフェードアウト
                             scaleOut(
-                                targetScale = 0.80f,
-                                animationSpec = tween(300)
-                            ) + fadeOut(
-                                targetAlpha = 0f,
-                                animationSpec = tween(300)
-                            )
+                                targetScale = 0.8f,
+                                animationSpec = tween(300, easing = FastOutSlowInEasing)
+                            ) + fadeOut(animationSpec = tween(300))
                         }
                     ) {
                         composable("main") {

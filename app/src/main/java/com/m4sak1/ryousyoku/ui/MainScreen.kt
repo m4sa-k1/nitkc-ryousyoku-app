@@ -2,6 +2,7 @@ package com.m4sak1.ryousyoku.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -29,8 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.m4sak1.ryousyoku.R
@@ -51,71 +51,79 @@ val MPlusRoundedFontFamily = FontFamily(
 fun MainScreen(viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedMenuForDialog by remember { mutableStateOf<Menu?>(null) }
+    var isImageLoaded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(BackgroundColor)) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Header()
+        when (val state = uiState) {
+            is MenuState.Loading -> {
+                // Background is handled, overlay will be drawn below
+            }
+            is MenuState.Success -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                    )
+                ) {
+                    item {
+                        Header()
+                    }
+                    
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
 
-            when (val state = uiState) {
-                is MenuState.Loading -> {
-                    // Handled by overlay
-                }
-                is MenuState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 16.dp,
-                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
-                    ) {
-                        item {
-                            state.activeMenu?.let { activeMenu ->
+                    item {
+                        state.activeMenu?.let { activeMenu ->
+                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                                 LatestMenuBlock(
                                     menu = activeMenu,
-                                    onClick = { selectedMenuForDialog = activeMenu }
+                                    onClick = { selectedMenuForDialog = activeMenu },
+                                    onImageLoaded = { isImageLoaded = true }
                                 )
                             }
                         }
+                    }
 
-                        item {
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
+
+                    item {
+                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                             ArchiveBlock(
                                 menus = state.allMenus,
                                 onClick = { selectedMenuForDialog = it }
                             )
                         }
+                    }
 
-                        item {
-                            Footer()
-                        }
+                    item {
+                        Footer()
                     }
                 }
-                is MenuState.Error -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "Error: ${state.message}", 
-                            color = Color.Red,
-                            fontFamily = MPlusRoundedFontFamily
-                        )
-                    }
+            }
+            is MenuState.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Error: ${state.message}", 
+                        color = Color.Red,
+                        fontFamily = MPlusRoundedFontFamily
+                    )
                 }
             }
         }
 
-        if (uiState is MenuState.Loading) {
+        // Overlay is visible if state is Loading OR if state is Success but image is not loaded yet
+        val shouldShowLoading = uiState is MenuState.Loading || (uiState is MenuState.Success && !isImageLoaded)
+        if (shouldShowLoading) {
             LoadingOverlay()
         }
-    }
 
-    selectedMenuForDialog?.let { menu ->
-        ImageModal(
-            menu = menu,
-            onDismiss = { selectedMenuForDialog = null }
-        )
+        // Modal overlay (edge-to-edge)
+        selectedMenuForDialog?.let { menu ->
+            BackHandler { selectedMenuForDialog = null }
+            ImageModal(
+                menu = menu,
+                onDismiss = { selectedMenuForDialog = null }
+            )
+        }
     }
 }
 
@@ -177,7 +185,7 @@ fun BlockContainer(title: String, content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-fun LatestMenuBlock(menu: Menu, onClick: () -> Unit) {
+fun LatestMenuBlock(menu: Menu, onClick: () -> Unit, onImageLoaded: () -> Unit) {
     BlockContainer(title = "今週の献立") {
         Surface(
             modifier = Modifier
@@ -196,6 +204,8 @@ fun LatestMenuBlock(menu: Menu, onClick: () -> Unit) {
                     .data(menu.imageUrl)
                     .crossfade(true)
                     .build(),
+                onSuccess = { onImageLoaded() },
+                onError = { onImageLoaded() }, // Hide spinner even if it fails so it's not stuck
                 contentDescription = "今週の献立",
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
@@ -311,7 +321,8 @@ fun LoadingOverlay() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0x99000000)), // 0.6 alpha black
+            .background(Color(0x99000000)) // 0.6 alpha black
+            .zIndex(5f),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
@@ -325,96 +336,87 @@ fun LoadingOverlay() {
 
 @Composable
 fun ImageModal(menu: Menu, onDismiss: () -> Unit) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true,
-            decorFitsSystemWindows = false
-        )
-    ) {
-        var scale by remember { mutableFloatStateOf(1f) }
-        var offset by remember { mutableStateOf(Offset.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
 
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xD9000000))
+            .zIndex(10f)
+    ) {
+        val context = LocalContext.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xD9000000))
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale = (scale * zoom).coerceIn(1f, 5f)
+                        val maxOffsetX = (size.width * (scale - 1)) / 2
+                        val maxOffsetY = (size.height * (scale - 1)) / 2
+                        offset = Offset(
+                            x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
+                            y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                        )
+                    }
+                }
         ) {
-            val context = LocalContext.current
-            Box(
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(menu.imageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Expanded Image",
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            scale = (scale * zoom).coerceIn(1f, 5f)
-                            val maxOffsetX = (size.width * (scale - 1)) / 2
-                            val maxOffsetY = (size.height * (scale - 1)) / 2
-                            offset = Offset(
-                                x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
-                                y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                            )
-                        }
+                    .padding(16.dp)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        translationX = offset.x
+                        translationY = offset.y
                     }
-            ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(menu.imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Expanded Image",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                            translationX = offset.x
-                            translationY = offset.y
-                        }
-                )
-            }
-
-            // Close Button
-            Text(
-                text = "×",
-                color = Color.White,
-                fontSize = 40.sp,
-                fontFamily = MPlusRoundedFontFamily,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(top = 20.dp, end = 30.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onDismiss
-                    )
             )
+        }
 
-            // Download Button
-            Surface(
-                color = Color(0x33FFFFFF), // 0.2 alpha white
-                shape = RoundedCornerShape(8.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x66FFFFFF)),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(bottom = 32.dp)
-                    .clickable {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(menu.pdfUrl)))
-                    }
-            ) {
-                Text(
-                    text = "📥 元のPDFを開く・ダウンロード",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = MPlusRoundedFontFamily,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        // Close Button
+        Text(
+            text = "×",
+            color = Color.White,
+            fontSize = 40.sp,
+            fontFamily = MPlusRoundedFontFamily,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(top = 20.dp, end = 30.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
                 )
-            }
+        )
+
+        // Download Button
+        Surface(
+            color = Color(0x33FFFFFF), // 0.2 alpha white
+            shape = RoundedCornerShape(8.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x66FFFFFF)),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(bottom = 32.dp)
+                .clickable {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(menu.pdfUrl)))
+                }
+        ) {
+            Text(
+                text = "📥 元のPDFを開く・ダウンロード",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontFamily = MPlusRoundedFontFamily,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
         }
     }
 }

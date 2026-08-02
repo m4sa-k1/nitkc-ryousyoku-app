@@ -38,10 +38,10 @@ jobs:
           NEW_BUILD=$((BUILD + 1))
           
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            NEW_PATCH=$((PATCH + 1))
-            # 初回0.0.0リリース対応
-            if [ "$PATCH" == "-1" ]; then
-              NEW_PATCH=0
+            if [ "$PATCH" == "-1" ] || [ "$PATCH" == "0" ]; then
+              NEW_PATCH=1
+            else
+              NEW_PATCH=$((PATCH + 1))
             fi
             sed -i "s/patch=.*/patch=$NEW_PATCH/" version.properties
             sed -i "s/beta_version=.*/beta_version=0/" version.properties

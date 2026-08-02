@@ -7,11 +7,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -47,15 +54,13 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    // ── 予測型戻る (Predictive Back) トグル実装 ──
-                    // ON (デフォルト):
-                    //   コールバック未登録 → システムが予測型戻りアニメーション
-                    //   (back-to-home等) を自動表示。
-                    // OFF:
-                    //   PRIORITY_OVERLAY でコールバック登録 → システムの予測型
-                    //   アニメーションをバイパスし、即座に戻る。
+                    // ── 予測型戻る (Predictive Back) トグル ──
+                    // OFF の場合: PRIORITY_OVERLAY コールバックで戻るジェスチャーを
+                    // インターセプトし、予測型アニメーションなしで即座に戻る。
+                    // ON の場合: コールバック未登録 → NavHost が pop 遷移アニメーションを
+                    // ジェスチャーの進行度に連動させてスクラブ表示（予測型戻り）。
                     PredictiveBackToggle(
-                        enabled = !isPredictiveBackEnabled,
+                        shouldIntercept = !isPredictiveBackEnabled,
                         navController = navController,
                         activity = this@MainActivity
                     )
@@ -63,11 +68,18 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = "main",
-                        // 通常の画面遷移アニメーション無効化（ユーザー要望: カクカクした即時切り替え）
-                        enterTransition = { androidx.compose.animation.EnterTransition.None },
-                        exitTransition = { androidx.compose.animation.ExitTransition.None },
-                        popEnterTransition = { androidx.compose.animation.EnterTransition.None },
-                        popExitTransition = { androidx.compose.animation.ExitTransition.None }
+                        // 順方向遷移（ボタンタップ等）: アニメーションなし（即時切替）
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        // 逆方向遷移（戻る）: スライド+フェードアニメーション
+                        // 予測型戻りジェスチャー時にこのアニメーションが
+                        // 指の位置に連動してスクラブ再生される。
+                        popEnterTransition = {
+                            slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn()
+                        },
+                        popExitTransition = {
+                            slideOutHorizontally(targetOffsetX = { it / 3 }) + fadeOut()
+                        }
                     ) {
                         composable("main") {
                             MainScreen(
@@ -106,18 +118,25 @@ class MainActivity : ComponentActivity() {
 
 /**
  * 予測型戻りの無効化トグル。
- * enabled = true の場合、PRIORITY_OVERLAY コールバックを登録して
- * システムの予測型アニメーションをバイパスする (API 33+)。
- * enabled = false の場合、コールバックを解除してシステムに任せる。
+ *
+ * shouldIntercept = true の場合:
+ *   OnBackInvokedDispatcher に PRIORITY_OVERLAY でコールバックを登録。
+ *   これにより戻るジェスチャーが NavHost に到達する前にインターセプトされ、
+ *   予測型アニメーションなしで即座に popBackStack() / finish() する。
+ *
+ * shouldIntercept = false の場合:
+ *   コールバックを解除（または登録しない）。
+ *   NavHost が通常通り予測型戻りを処理し、pop 遷移アニメーションを
+ *   ジェスチャーに連動してスクラブ表示する。
  */
 @SuppressLint("NewApi")
 @Composable
 private fun PredictiveBackToggle(
-    enabled: Boolean,
-    navController: androidx.navigation.NavController,
+    shouldIntercept: Boolean,
+    navController: NavController,
     activity: ComponentActivity
 ) {
-    if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    if (shouldIntercept && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         DisposableEffect(Unit) {
             val callback = android.window.OnBackInvokedCallback {
                 if (!navController.popBackStack()) {

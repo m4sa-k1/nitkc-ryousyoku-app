@@ -38,15 +38,9 @@ jobs:
           NEW_BUILD=$((BUILD + 1))
           
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            # mainブランチの場合: patchをインクリメントし、betaをクリアする。
-            # ただし、すでに0.0.0を出したいという意図があるため、初回はマイナスからのインクリメント等の考慮が必要。
-            # 今回はpatch=0の状態でそのまま出したいケースもあるため、シンプルに+1するロジックにしておきます。
             NEW_PATCH=$((PATCH + 1))
-            if [ "$PATCH" == "-1" ]; then
-              NEW_PATCH=0
-            fi
             sed -i "s/patch=.*/patch=$NEW_PATCH/" version.properties
-            sed -i "s/beta_version=.*/beta_version=/" version.properties
+            sed -i "s/beta_version=.*/beta_version=0/" version.properties
             sed -i "s/build=.*/build=$NEW_BUILD/" version.properties
             
             echo "NEW_VERSION=$MAJOR.$MINOR.$NEW_PATCH" >> $GITHUB_ENV
@@ -54,7 +48,6 @@ jobs:
             echo "RELEASE_NAME=Release - v$MAJOR.$MINOR.$NEW_PATCH" >> $GITHUB_ENV
             echo "IS_PRERELEASE=false" >> $GITHUB_ENV
           else
-            # devブランチの場合: beta_versionをインクリメントする。
             NEW_BETA=$((BETA + 1))
             sed -i "s/beta_version=.*/beta_version=$NEW_BETA/" version.properties
             sed -i "s/build=.*/build=$NEW_BUILD/" version.properties

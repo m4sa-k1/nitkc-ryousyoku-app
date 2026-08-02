@@ -34,6 +34,10 @@ Built entirely in **Kotlin** and **Jetpack Compose**, this app acts as a highly 
 - **UI & Aesthetic Decisions**:
   - **Pixel-Perfect Web Replication**: The margins, border radiuses, and `#ff8c42` theme colors are perfectly aligned with the web app.
   - **No Ripple Effect**: To maintain a sharp, web-like interaction model, the default Android Material "blue ripple effect" on tap has been intentionally disabled using a custom `LocalIndication`.
+  - **Custom Predictive Back Navigation (Android 13/14+)**:
+    - **In-App Transitions**: When swiping back (e.g., Settings → Top), the foreground screen scales down (1.0 → 0.85) without fading, rounds its corners (0dp → 24dp), and dynamically offsets based on the swipe edge (EDGE_LEFT vs EDGE_RIGHT). The destination screen is pre-rendered in the background for zero-lag visibility through the gaps, with a growing dark scrim (0% → 35%) for high contrast.
+    - **Back-to-Home Transition**: Swiping back on the main root screen reveals the user's Android launcher and wallpaper through the transparent window gaps (`windowIsTranslucent=true`).
+    - **Real-Time Predictive Back Toggle**: Users can toggle predictive back ON/OFF in Settings in real-time via `OnBackInvokedDispatcher` (`PRIORITY_OVERLAY`) without restarting the app.
 
 ## 🚀 CI/CD & Automated Releases
 The release process is fully automated via GitHub Actions (`.github/workflows/release.yml`).

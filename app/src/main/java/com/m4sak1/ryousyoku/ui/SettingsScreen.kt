@@ -129,9 +129,9 @@ fun SettingsScreen(
             SettingsItem(text = "オープンソースライセンス") {
                 onNavigateToLicenses()
             }
-            SettingsItem(text = "お問い合わせ (mail@ringonyo.net)") {
+            SettingsItem(text = "お問い合わせ (mail@rin.gonyo.net)") {
                 val intent = Intent(Intent.ACTION_SENDTO).apply {
-                    data = Uri.parse("mailto:mail@ringonyo.net")
+                    data = Uri.parse("mailto:mail@rin.gonyo.net")
                 }
                 context.startActivity(intent)
             }

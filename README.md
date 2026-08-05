@@ -5,7 +5,6 @@
 > **⚠️ Disclaimer**
 > This application is an unofficial student project and is not affiliated with Kagawa National College of Technology in any way.
 > The copyright of the menu data displayed within the app belongs to the school.
-> Reusing this source code to perform actions that burden the school's servers is strictly prohibited.
 > The author assumes no responsibility for any trouble or damage caused by the use of this application or code.
 
 This is the native Android application for viewing the Nitkc (Kagawa National College of Technology) dormitory food menu.

@@ -1,62 +1,61 @@
-# Nitkc Ryousyoku App
+# 寮食アプリ (Nitkc Ryousyoku App)
 
-[日本語版はこちら (Japanese)](README_ja.md)
+> **⚠️ 免責事項 (Disclaimer)**
+> 本アプリは学生による非公式プロジェクトであり、香川高等専門学校とは一切関係ありません。
+> アプリ内で表示される献立データの著作権は学校側に帰属します。
+> 本アプリ・コードの利用によって生じたいかなるトラブルや損害についても、作者は一切の責任を負いません。
 
-> **⚠️ Disclaimer**
-> This application is an unofficial student project and is not affiliated with Kagawa National College of Technology in any way.
-> The copyright of the menu data displayed within the app belongs to the school.
-> The author assumes no responsibility for any trouble or damage caused by the use of this application or code.
+高専寮の献立をサクッと確認できるAndroidネイティブアプリです。
+Web版（PWA）である [ryousyoku.m4sak1.me](https://ryousyoku.m4sak1.me/) のAndroidネイティブ版となります。
 
-This is the native Android application for viewing the Nitkc (Kagawa National College of Technology) dormitory food menu.
-It is the native app version of the PWA available at [ryousyoku.m4sak1.me](https://ryousyoku.m4sak1.me/).
+## 🌟 概要
+「寮食アプリ」は、徹底的な軽量化と爆速レスポンス、そしてオフライン動作を前提に設計されています。
+容量の大きいPDFファイルや画像をアプリのAPK内に直接同梱すると、アップデートのたびにアプリサイズが肥大化してしまいます。それを防ぐため、本アプリはバックエンドインフラで事前処理されたメタデータと軽量画像をクラウドから動的にフェッチする仕組みを採用しています。
 
-## 🌟 Overview
-The Nitkc Ryousyoku App is designed to be lightweight, lightning-fast, and completely offline-capable after the initial data fetch. Instead of bundling heavy PDF files and images inside the APK (which would cause the app size to bloat over time), the app dynamically fetches metadata and pre-rendered images from our backend infrastructure.
+UIデザインはすべて **Jetpack Compose** で構築されており、Web版の無駄のない開発者ライクな等幅フォント・ミニマルデザインをAndroidネイティブアプリとして完全再現しつつ、ネイティブならではの滑らかなパフォーマンスを提供します。
 
-The core design philosophy is to provide the same sleek, developer-focused, monospace aesthetic of the web version, but with the smooth performance and native integration of an Android application built purely with Jetpack Compose.
+## 🏗️ システムアーキテクチャと詳細な仕組み
 
-## 🏗️ System Architecture & Mechanics
+### 1. バックエンドシステム（Webクローラー）
+本アプリのデータは、Web版のリポジトリに仕込まれた GitHub Actions による自動バックエンドシステムに完全に依存しています。
+- **データ取得元**: すべてのデータの大元は、[香川高専公式の寮食献立PDF](https://www.kagawa-nct.ac.jp/dormitoryE/kondate.pdf) です。
+- **自動巡回と処理**: 毎週末（主に金曜・土曜）、GitHub Actionsが起動してPythonスクリプト（`check_and_process.py`）を実行し、最新のPDFを取得します。
+- **画像生成とメタデータ抽出**: `PyMuPDF` (`fitz`) を用いてPDFを解析し、献立の期間（例：`20260727-20260802`）を抽出します。その後、PDFの1ページ目を150 DPIの高画質PNG画像に変換し、ファイル名として保存します。
+- **JSONの更新**: これらの処理が終わると、アプリのデータベースとなる `menus.json` が更新されます。
 
-### 1. The Backend Infrastructure (Web/Scraper)
-The data for this app is entirely reliant on a backend scraper system hosted via GitHub Actions on the web repository. 
-- **Data Source**: The original data is sourced directly from [the official Kagawa NCT Dormitory Menu PDF](https://www.kagawa-nct.ac.jp/dormitoryE/kondate.pdf).
-- **Automated Processing**: Every weekend (typically Friday or Saturday), a GitHub Action triggers a Python script (`check_and_process.py`). This script downloads the latest official PDF.
-- **Image Generation**: Using `PyMuPDF` (`fitz`), the script parses the PDF to extract the exact date range of the menu (e.g., `20260727-20260802`). It then converts the first page of the PDF into a high-quality 150 DPI PNG image.
-- **JSON Metadata**: The script updates a centralized `menus.json` file which acts as the database for both the Web PWA and this Android app.
+### 2. Androidネイティブアプリ（フロントエンド）
+**Kotlin** と **Jetpack Compose** で完全にゼロから構築されたこのアプリは、上記のJSONデータベースのクライアントとして動作します。
 
-### 2. The Android Native App (Frontend)
-Built entirely in **Kotlin** and **Jetpack Compose**, this app acts as a highly optimized client for the JSON database mentioned above.
+- **スマートな表示切り替え（日曜/月曜の境界判定）**:
+  学校側はしばしば金曜や土曜の段階で「来週の献立」をアップロードします。もしアプリが単純に「一番新しいデータ」を表示してしまうと、学生が土日にアプリを開いた際に「今日の土日のご飯」が確認できなくなるという問題が発生します。
+  これを解決するため、本アプリは各ファイルのファイル名（`YYYYMMDD-YYYYMMDD.pdf`）から期間を抽出し、**ユーザーの現在のローカル日時**と比較します。土日の時点では「今週の献立」を表示し続け、**月曜日の午前0時（00:00）**になった瞬間に、自動的に「来週の献立」へと表示を切り替える高度なロジックを実装しています。
 
-- **Smart Menu Selection (The Sunday/Monday Boundary)**:
-  The school often uploads next week's menu on Friday or Saturday. If the app immediately displayed the newest PDF, students wouldn't be able to check their meals for the current Saturday and Sunday. 
-  To solve this, the app parses the `YYYYMMDD-YYYYMMDD` filename of each menu to extract its active date range. It compares this against the user's current local time. The app will continue displaying the "Current Week" menu throughout the weekend, and automatically switch to the "Next Week" menu exactly at **Monday 00:00**.
+- **最強のキャッシュ戦略 (Coil + OkHttp)**:
+  - **JSONフェッチ**: `OkHttp` と `kotlinx.serialization` を使用して、超軽量な `menus.json` をクラウドから取得します。
+  - **画像キャッシュ (Coil)**: 画像の読み込みには、ディスクキャッシュに極めて強い **Coil** を採用しています。ユーザーが一度でも献立を表示すると、そのPNG画像は端末のローカルストレージにキャッシュされます。これにより、寮の電波が悪い場所や完全なオフライン状態であっても、一度取得した献立は即座に（爆速で）表示されます。
+  - **ゼロ・ブロート**: 画像はオンデマンドで取得・キャッシュされるため、アプリ自体のインストールサイズ（APKサイズ）は常に数MB程度に抑えられます。
 
-- **Aggressive Caching Strategy**:
-  - **JSON Fetching**: Uses `OkHttp` and `kotlinx.serialization` to fetch the lightweight `menus.json` from the cloud.
-  - **Image Caching (Coil)**: We utilize **Coil** (Coroutine Image Loader) with a heavily optimized disk-cache policy. When a user views a menu for the first time, the PNG is downloaded. From that point on, it is stored in the device's local cache. Even if the user opens the app offline (e.g., in a spot with bad reception in the dormitory), the previously loaded menus will display instantly.
-  - **Zero Bloat**: Since images are fetched on-demand and cached locally, the base APK size remains extremely small.
+- **UIと操作性のこだわり**:
+  - **Web版のピクセルパーフェクトな再現**: 余白（マージン）、角丸（ボーダーラジアス）、テーマカラーのオレンジ（`#ff8c42`）など、Web版のCSSデザインをJetpack ComposeのModifierを用いて完璧に再現しています。
+  - **リップルエフェクト（波紋）の無効化**: Android特有の「タップした際に青い丸い波紋が広がるエフェクト」を、独自の `LocalIndication` を用いて意図的に無効化しています。これにより、Webアプリのようなスッキリとした無機質でシャープな操作感を実現しています。
+  - **完全自作の「予測型戻る (Predictive Back)」アニメーション**:
+    - **アプリ内遷移 (設定→トップ、データ→設定など)**: 手前画面が不透明のままスケールダウン（1.0 → 0.85）、四隅の角丸化（0dp → 24dp）、スワイプ方向に応じた偏りオフセット（左スワイプで右に寄る）が指の動きに100%追従します。背面の遷移先画面は事前レンダリングにより遅延ゼロ（ラグなし）で隙間から見え、引っ張る量に応じて背景画面が少しずつ暗く（0% → 35%）なって立体的な奥行き感を表現します。
+    - **ホームに戻る動作 (トップ→ホーム)**: ルート画面での戻るスワイプ時、独自透過テーマ（`windowIsTranslucent=true`）により隙間からOSのホーム画面/壁紙が滑らかに透けて見えます。
+    - **設定画面でのリアルタイム切り替え**: 設定タブのトグルスイッチから「予測型戻る」のオン/オフを即座に切り替え可能（Android 13+ の `OnBackInvokedDispatcher` `PRIORITY_OVERLAY` を使用）。アプリの再起動なしで直ちに反映されます。
 
-- **UI & Aesthetic Decisions**:
-  - **Pixel-Perfect Web Replication**: The margins, border radiuses, and `#ff8c42` theme colors are perfectly aligned with the web app.
-  - **No Ripple Effect**: To maintain a sharp, web-like interaction model, the default Android Material "blue ripple effect" on tap has been intentionally disabled using a custom `LocalIndication`.
-  - **Custom Predictive Back Navigation (Android 13/14+)**:
-    - **In-App Transitions**: When swiping back (e.g., Settings → Top), the foreground screen scales down (1.0 → 0.85) without fading, rounds its corners (0dp → 24dp), and dynamically offsets based on the swipe edge (EDGE_LEFT vs EDGE_RIGHT). The destination screen is pre-rendered in the background for zero-lag visibility through the gaps, with a growing dark scrim (0% → 35%) for high contrast.
-    - **Back-to-Home Transition**: Swiping back on the main root screen reveals the user's Android launcher and wallpaper through the transparent window gaps (`windowIsTranslucent=true`).
-    - **Real-Time Predictive Back Toggle**: Users can toggle predictive back ON/OFF in Settings in real-time via `OnBackInvokedDispatcher` (`PRIORITY_OVERLAY`) without restarting the app.
+## 🚀 CI/CD と自動リリースパイプライン
+リリースの作成は GitHub Actions (`.github/workflows/release.yml`) を用いて完全自動化されています。
+- **`dev` ブランチ**: 開発用ブランチにプッシュされると、ベータ版のバージョン（例：`Pre release - v0.0.0-beta.1`）が自動でカウントアップされ、Pre-releaseとしてGitHub ReleasesにAPKが公開されます。
+- **`main` ブランチ**: mainブランチにマージされると、正式リリース（例：`Release - v0.0.1`）としてパッチバージョンが上がり、ベータ版のカウントは自動でリセットされます。
+- パッケージ名（Application ID: `com.m4sak1.ryousyoku`）は統一されているため、ユーザーはベータ版から正式版へアンインストールなしでそのままシームレスにアップデート可能です。
 
-## 🚀 CI/CD & Automated Releases
-The release process is fully automated via GitHub Actions (`.github/workflows/release.yml`).
-- **Dev Branch (`dev`)**: Pushing to the `dev` branch triggers a Beta build. The Action automatically increments the beta version counter, builds a release-signed APK, and publishes it to GitHub Releases as a `Pre-release` (e.g., `Pre release - v0.0.0-beta.1`).
-- **Main Branch (`main`)**: Merging into the `main` branch triggers a stable build. The patch version is incremented, the beta counter is reset, and the stable APK is published as a `Release` (e.g., `Release - v0.0.1`).
-- Because both releases share the exact same `applicationId` (`com.m4sak1.ryousyoku`), users can seamlessly upgrade from a Beta version to a Stable version without uninstalling the app.
+## 📥 ダウンロード
+最新のビルド済みAPKは、以下のGitHub ReleasesページからダウンロードしてAndroid端末にインストールしてください。
+- [最新リリースはこちら](https://github.com/m4sa-k1/nitkc-ryousyoku-app/releases/latest)
 
-## 📥 Downloading
-You can download the latest automatically built APK from our GitHub Releases page:
-- [Latest Release / 最新リリース](https://github.com/m4sa-k1/nitkc-ryousyoku-app/releases/latest)
+## 🤝 行動規範 (Code of Conduct)
+誰もが歓迎されるコミュニティを維持するため、本プロジェクトに参加する際は必ず [行動規範 (Code of Conduct)](CODE_OF_CONDUCT_ja.md) をお読みください。
 
-## 🤝 Code of Conduct
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project to ensure a welcoming environment for everyone.
-
-## 📄 License
-This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
-You are permitted to use and modify this software for noncommercial purposes (personal use, educational institutions, non-profit organizations, etc.), but commercial use is strictly prohibited. See the `LICENSE` file for full details.
+## 📄 ライセンス
+本プロジェクトは **PolyForm Noncommercial License 1.0.0** のもとで公開されています。
+本ソフトウェアの非商用目的（個人利用、教育機関、非営利団体など）での利用・改変は許可されていますが、商用目的での利用は禁止されています。詳細は `LICENSE` ファイルをご確認ください。

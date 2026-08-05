@@ -2,6 +2,11 @@
 
 [日本語版はこちら (Japanese)](README_ja.md)
 
+> **⚠️ Disclaimer**
+> This application is an unofficial student project and is not affiliated with Kagawa National College of Technology in any way.
+> The copyright of the menu data displayed within the app belongs to the school.
+> The author assumes no responsibility for any trouble or damage caused by the use of this application or code.
+
 This is the native Android application for viewing the Nitkc (Kagawa National College of Technology) dormitory food menu.
 It is the native app version of the PWA available at [ryousyoku.m4sak1.me](https://ryousyoku.m4sak1.me/).
 
@@ -53,4 +58,5 @@ You can download the latest automatically built APK from our GitHub Releases pag
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project to ensure a welcoming environment for everyone.
 
 ## 📄 License
-This project is licensed under the MIT License.
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
+You are permitted to use and modify this software for noncommercial purposes (personal use, educational institutions, non-profit organizations, etc.), but commercial use is strictly prohibited. See the `LICENSE` file for full details.

@@ -1,0 +1,5 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="220dp" android:minHeight="180dp" android:minResizeWidth="180dp" android:minResizeHeight="110dp"
+    android:targetCellWidth="4" android:targetCellHeight="3" android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000" android:initialLayout="@layout/widget_next_meal" android:previewLayout="@layout/widget_next_meal"
+    android:description="@string/next_meal_widget_description" android:widgetCategory="home_screen" />

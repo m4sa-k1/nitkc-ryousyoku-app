@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.Ryousyoku">
+        <receiver android:name=".widget.NextMealWidget" android:exported="false" android:label="@string/next_meal_widget_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/next_meal_widget_info" />
+        </receiver>
         <receiver android:name=".notifications.MealAlarmReceiver" android:exported="false" />
         <receiver android:name=".notifications.MealAlarmRestoreReceiver" android:exported="false">
             <intent-filter>

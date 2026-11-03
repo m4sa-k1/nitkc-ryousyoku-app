@@ -51,6 +51,7 @@ fun StructuredMenuBlock(viewModel: MenuViewModel, onImage: () -> Unit) {
     val state by viewModel.structured.collectAsState()
     val selections by viewModel.selections.collectAsState()
     val breakfastDefault by viewModel.breakfastDefault.collectAsState()
+    val preferredDate by viewModel.preferredDate.collectAsState()
     Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp),
         shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
     Column(Modifier.padding(14.dp)) {
@@ -67,7 +68,10 @@ fun StructuredMenuBlock(viewModel: MenuViewModel, onImage: () -> Unit) {
                 val data = ready.data
                 var selectedDate by rememberSaveable(data.source.sha256) {
                     val today = LocalDate.now(ZoneId.of("Asia/Tokyo")).toString()
-                    mutableStateOf(data.days.find { it.date == today }?.date ?: data.days.first().date)
+                    mutableStateOf(data.days.find { it.date == preferredDate }?.date ?: data.days.find { it.date == today }?.date ?: data.days.first().date)
+                }
+                LaunchedEffect(data.source.sha256, preferredDate) {
+                    if (data.days.any { it.date == preferredDate }) selectedDate = preferredDate!!
                 }
                 if (ready.fromCache) Text("保存済みの献立を表示中", fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))

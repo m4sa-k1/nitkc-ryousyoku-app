@@ -133,6 +133,8 @@ fun SettingsScreen(
             }
 
             if (backupViewModel != null) {
+                WidgetSettingsSection()
+                Spacer(Modifier.height(8.dp))
                 NotificationSettingsSection()
                 Spacer(Modifier.height(8.dp))
                 BackupSection(backupViewModel)

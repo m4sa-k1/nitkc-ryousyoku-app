@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="16dp" android:background="@drawable/widget_meal_background" android:clipToOutline="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/widget_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="次の献立" android:textSize="11sp" android:textColor="@color/widget_muted" android:maxLines="1" />
+            <TextView android:id="@+id/widget_meal" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="朝食" android:textSize="24sp" android:textStyle="bold" android:textColor="@color/widget_text" android:includeFontPadding="false" android:layout_marginTop="3dp" />
+        </LinearLayout>
+        <ImageView android:id="@+id/widget_icon" android:layout_width="42dp" android:layout_height="42dp" android:padding="8dp" android:background="@drawable/widget_meal_panel" android:tint="@color/widget_accent" android:src="@drawable/ic_notification_symbol_breakfast_dining" android:importantForAccessibility="no" />
+        <TextView android:id="@+id/widget_refresh" android:layout_width="40dp" android:layout_height="44dp" android:text="↻" android:textSize="27sp" android:gravity="center" android:textColor="@color/widget_accent" android:contentDescription="献立を更新" />
+    </LinearLayout>
+    <TextView android:id="@+id/widget_badge" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="次の献立" android:textColor="@color/widget_accent" android:textSize="10sp" android:layout_marginTop="8dp" android:maxLines="1" />
+    <TextView android:id="@+id/widget_primary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="献立データを準備中" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/widget_text" android:maxLines="2" android:ellipsize="end" android:layout_marginTop="3dp" />
+    <LinearLayout android:id="@+id/widget_options" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:visibility="gone" android:layout_marginTop="4dp">
+        <TextView android:id="@+id/widget_option_a" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:background="@drawable/widget_meal_panel" android:padding="8dp" android:textColor="@color/widget_text" android:textSize="14sp" android:maxLines="2" android:ellipsize="end" />
+        <TextView android:id="@+id/widget_option_b" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:background="@drawable/widget_meal_panel" android:padding="8dp" android:textColor="@color/widget_text" android:textSize="14sp" android:maxLines="2" android:ellipsize="end" />
+    </LinearLayout>
+    <TextView android:id="@+id/widget_secondary" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="7dp" android:text="タップして献立を開く" android:textColor="@color/widget_text" android:textSize="13sp" android:lineSpacingExtra="3dp" android:ellipsize="end" />
+    <TextView android:id="@+id/widget_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="タップして献立を開く" android:textColor="@color/widget_muted" android:textSize="10sp" android:maxLines="1" android:ellipsize="end" android:layout_marginTop="5dp" />
+</LinearLayout>

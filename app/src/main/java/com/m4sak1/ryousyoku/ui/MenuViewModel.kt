@@ -66,6 +66,16 @@ class MenuViewModel(application: Application) : AndroidViewModel(application) {
     fun setBreakfastDefault(value: BreakfastDefault) {
         appPreferences.edit().putString("breakfast_default", value.name).apply()
         _breakfastDefault.value = value
+        com.m4sak1.ryousyoku.widget.NextMealWidgetController.refresh(getApplication())
+    }
+    private val _preferredDate = MutableStateFlow<String?>(null)
+    val preferredDate = _preferredDate.asStateFlow()
+    fun openWidgetDate(value: String) {
+        val date = runCatching { LocalDate.parse(value) }.getOrNull() ?: return
+        val menus = (_uiState.value as? MenuState.Success)?.allMenus ?: return
+        val target = menus.filter { menuCoversDate(it, date) }.singleOrNull() ?: return
+        _preferredDate.value = date.toString()
+        selectMenu(target)
     }
     private val _selectedMenu = MutableStateFlow<Menu?>(null)
     val selectedMenu = _selectedMenu.asStateFlow()
@@ -165,6 +175,7 @@ class MenuViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 _selections.value = updated
                 _breakfastDefault.value = backup.breakfastDefault
+                com.m4sak1.ryousyoku.widget.NextMealWidgetController.refresh(getApplication())
                 _backupPreview.value = null
                 _backupMessage.value = "${backup.selections.size}件の記録と朝食のデフォルトを復元しました。"
             } catch (cancelled: CancellationException) { throw cancelled
@@ -271,6 +282,7 @@ class MenuViewModel(application: Application) : AndroidViewModel(application) {
             preferences.edit().putString(key, option).apply()
         }
         _selections.value = updated
+        com.m4sak1.ryousyoku.widget.NextMealWidgetController.refresh(getApplication())
     }
 
     private val _uiState = MutableStateFlow<MenuState>(MenuState.Loading)

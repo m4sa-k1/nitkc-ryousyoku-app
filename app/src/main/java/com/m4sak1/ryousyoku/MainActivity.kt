@@ -2,6 +2,7 @@ package com.m4sak1.ryousyoku
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,13 +38,31 @@ import com.m4sak1.ryousyoku.ui.SettingsScreen
 import kotlin.coroutines.cancellation.CancellationException
 
 class MainActivity : ComponentActivity() {
+    private val widgetDate = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    private fun takeWidgetDate(intent: Intent): String? {
+        val value = intent.getStringExtra(com.m4sak1.ryousyoku.widget.WIDGET_DATE_EXTRA)
+        intent.removeExtra(com.m4sak1.ryousyoku.widget.WIDGET_DATE_EXTRA)
+        return value?.takeIf { runCatching { java.time.LocalDate.parse(it) }.isSuccess }
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        widgetDate.value = takeWidgetDate(intent)
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("pending_widget_date", widgetDate.value)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onResume() {
         super.onResume()
         com.m4sak1.ryousyoku.notifications.MealNotificationScheduler.rescheduleAll(this)
+        com.m4sak1.ryousyoku.widget.NextMealWidgetController.refresh(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        widgetDate.value = savedInstanceState?.getString("pending_widget_date") ?: takeWidgetDate(intent)
         enableEdgeToEdge()
 
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
@@ -74,6 +93,16 @@ class MainActivity : ComponentActivity() {
                     LocalIndication provides NoRippleIndication
                 ) {
                     val navController = rememberNavController()
+                    val pendingDate by widgetDate.collectAsState()
+                    val menuState by menuViewModel.uiState.collectAsState()
+                    LaunchedEffect(pendingDate, menuState) {
+                        val date = pendingDate
+                        if (date != null && menuState is com.m4sak1.ryousyoku.ui.MenuState.Success) {
+                            menuViewModel.openWidgetDate(date)
+                            navController.navigate("main") { popUpTo("main") { inclusive = true }; launchSingleTop = true }
+                            widgetDate.value = null
+                        }
+                    }
                     val activity = LocalContext.current as? ComponentActivity
 
                     // 予測型戻りOFF時: PRIORITY_OVERLAY で即座に戻る

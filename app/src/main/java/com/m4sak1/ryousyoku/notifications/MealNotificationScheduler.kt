@@ -95,5 +95,8 @@ class MealAlarmReceiver : BroadcastReceiver() {
 }
 
 class MealAlarmRestoreReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) { MealNotificationScheduler.rescheduleAll(context) }
+    override fun onReceive(context: Context, intent: Intent) {
+        MealNotificationScheduler.rescheduleAll(context)
+        com.m4sak1.ryousyoku.widget.NextMealWidgetController.refresh(context)
+    }
 }

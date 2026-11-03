@@ -1,0 +1,4 @@
+<resources>
+    <string name="next_meal_widget_name">次の献立</string>
+    <string name="next_meal_widget_description">次の1食分の献立を表示。朝食のデフォルトや日別の選択も反映します。</string>
+</resources>

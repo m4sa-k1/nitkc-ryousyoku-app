@@ -123,6 +123,8 @@ dependencies {
     // Coil for Image Loading & Caching
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+
     // OkHttp for Network
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 

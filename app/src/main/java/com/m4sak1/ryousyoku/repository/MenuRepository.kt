@@ -73,7 +73,7 @@ class MenuRepository(private val cacheDir: File? = null) {
             val parsed = json.decodeFromString<StructuredMenu>(body).validate(menu.filename, entry.sourceSha256)
             cache?.let {
                 it.parentFile?.mkdirs()
-                val temp = File(it.path + ".tmp")
+                val temp = File.createTempFile(it.name, ".tmp", it.parentFile)
                 temp.writeText(body)
                 if (!temp.renameTo(it)) { it.writeText(body); temp.delete() }
             }

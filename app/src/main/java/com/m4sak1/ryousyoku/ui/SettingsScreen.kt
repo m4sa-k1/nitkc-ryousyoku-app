@@ -131,7 +131,11 @@ fun SettingsScreen(
                 Switch(checked = isPredictiveBackEnabled, onCheckedChange = { onTogglePredictiveBack() })
             }
 
-            backupViewModel?.let { BackupSection(it) }
+            if (backupViewModel != null) {
+                NotificationSettingsSection()
+                Spacer(Modifier.height(8.dp))
+                BackupSection(backupViewModel)
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(

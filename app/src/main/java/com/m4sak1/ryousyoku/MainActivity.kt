@@ -36,6 +36,11 @@ import com.m4sak1.ryousyoku.ui.SettingsScreen
 import kotlin.coroutines.cancellation.CancellationException
 
 class MainActivity : ComponentActivity() {
+    override fun onResume() {
+        super.onResume()
+        com.m4sak1.ryousyoku.notifications.MealNotificationScheduler.rescheduleAll(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -23,10 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.m4sak1.ryousyoku.ui.MainScreen
+import com.m4sak1.ryousyoku.ui.MenuViewModel
+import com.m4sak1.ryousyoku.ui.NutritionScreen
 import com.m4sak1.ryousyoku.ui.RawDataScreen
 import com.m4sak1.ryousyoku.ui.RyousyokuTheme
 import com.m4sak1.ryousyoku.ui.SettingsScreen
@@ -40,6 +43,13 @@ class MainActivity : ComponentActivity() {
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
         setContent {
+            val menuViewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            val breakfastDefault by menuViewModel.breakfastDefault.collectAsState()
+            var isTextMode by remember { mutableStateOf(prefs.getBoolean("text_menu", false)) }
+            val setTextMode: (Boolean) -> Unit = { enabled ->
+                isTextMode = enabled
+                prefs.edit().putBoolean("text_menu", enabled).apply()
+            }
             var isDarkMode by remember { mutableStateOf(prefs.getBoolean("dark_mode", false)) }
             var isPredictiveBackEnabled by remember { mutableStateOf(prefs.getBoolean("predictive_back", true)) }
 
@@ -85,8 +95,20 @@ class MainActivity : ComponentActivity() {
                                 backContent = null
                             ) {
                                 MainScreen(
+                                    viewModel = menuViewModel,
+                                    isTextMode = isTextMode,
+                                    onNavigateToNutrition = { navController.navigate("nutrition") },
                                     onNavigateToSettings = { navController.navigate("settings") }
                                 )
+                            }
+                        }
+                        composable("nutrition") {
+                            BackGestureWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() },
+                                backContent = { MainScreen(viewModel = menuViewModel, isTextMode = isTextMode) }
+                            ) {
+                                NutritionScreen(viewModel = menuViewModel)
                             }
                         }
                         composable("settings") {
@@ -96,15 +118,19 @@ class MainActivity : ComponentActivity() {
                                 enabled = isPredictiveBackEnabled,
                                 onBack = { navController.popBackStack() },
                                 backContent = {
-                                    MainScreen(onNavigateToSettings = {})
+                                    MainScreen(viewModel = menuViewModel, isTextMode = isTextMode)
                                 }
                             ) {
                                 SettingsScreen(
+                                    backupViewModel = menuViewModel,
+                                    breakfastDefault = breakfastDefault,
+                                    onBreakfastDefaultChange = menuViewModel::setBreakfastDefault,
+                                    isTextMode = isTextMode,
+                                    onTextModeChange = setTextMode,
                                     isDarkMode = isDarkMode,
                                     onToggleTheme = toggleTheme,
                                     isPredictiveBackEnabled = isPredictiveBackEnabled,
                                     onTogglePredictiveBack = togglePredictiveBack,
-                                    onNavigateBack = { navController.popBackStack() },
                                     onNavigateToRawData = { type -> navController.navigate("raw_data/$type") },
                                     onNavigateToLicenses = { navController.navigate("licenses") }
                                 )
@@ -119,17 +145,21 @@ class MainActivity : ComponentActivity() {
                                 onBack = { navController.popBackStack() },
                                 backContent = {
                                     SettingsScreen(
+                                    breakfastDefault = breakfastDefault,
+                                    onBreakfastDefaultChange = menuViewModel::setBreakfastDefault,
+                                    isTextMode = isTextMode,
+                                    onTextModeChange = setTextMode,
                                         isDarkMode = isDarkMode,
                                         onToggleTheme = toggleTheme,
                                         isPredictiveBackEnabled = isPredictiveBackEnabled,
                                         onTogglePredictiveBack = togglePredictiveBack,
-                                        onNavigateBack = {},
                                         onNavigateToRawData = {},
                                         onNavigateToLicenses = {}
                                     )
                                 }
                             ) {
                                 RawDataScreen(
+                                    viewModel = menuViewModel,
                                     type = type,
                                     onNavigateBack = { navController.popBackStack() }
                                 )
@@ -143,11 +173,14 @@ class MainActivity : ComponentActivity() {
                                 onBack = { navController.popBackStack() },
                                 backContent = {
                                     SettingsScreen(
+                                    breakfastDefault = breakfastDefault,
+                                    onBreakfastDefaultChange = menuViewModel::setBreakfastDefault,
+                                    isTextMode = isTextMode,
+                                    onTextModeChange = setTextMode,
                                         isDarkMode = isDarkMode,
                                         onToggleTheme = toggleTheme,
                                         isPredictiveBackEnabled = isPredictiveBackEnabled,
                                         onTogglePredictiveBack = togglePredictiveBack,
-                                        onNavigateBack = {},
                                         onNavigateToRawData = {},
                                         onNavigateToLicenses = {}
                                     )
@@ -217,7 +250,7 @@ private fun BackGestureWrapper(
         // progress > 0f の条件を外し常時レンダリングすることで
         // スワイプ開始時の初回コンポジションによるラグを完全に排除
         if (backContent != null) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().clearAndSetSemantics {}) {
                 backContent()
 
                 // 引っ張る量(隙間)に応じて影を濃く(0% → 35%)する暗幕

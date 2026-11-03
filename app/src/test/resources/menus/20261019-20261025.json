@@ -1,0 +1,800 @@
+{
+  "schema_version": 1,
+  "source": {
+    "filename": "20261019-20261025.pdf",
+    "sha256": "72e53f1defc1802b32e0dd56b1ec40a1a538dad6ca98163f7c17873e8d4cadaa",
+    "parser_version": "1",
+    "method": "table_text"
+  },
+  "period": {
+    "start": "2026-10-19",
+    "end": "2026-10-25",
+    "timezone": "Asia/Tokyo"
+  },
+  "document_type": "menu",
+  "notices": [
+    "※仕入れの都合により献立が変更になることがあります"
+  ],
+  "days": [
+    {
+      "date": "2026-10-19",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "ひじき煮",
+            "ミニハンバーグ",
+            "野菜サラダ",
+            "味噌汁",
+            "牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 874,
+                "protein_g": 26.5,
+                "fat_g": 20.9,
+                "salt_g": 2.5
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 717,
+                "protein_g": 27.5,
+                "fat_g": 31.0,
+                "salt_g": 4.0
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "シーチキンピラフ",
+                "メンチカツ",
+                "パンプキンﾎﾟﾀｰｼﾞｭｽｰﾌﾟ",
+                "フルーツ杏仁"
+              ],
+              "nutrition": {
+                "energy_kcal": 928,
+                "protein_g": 24.7,
+                "fat_g": 20.3,
+                "salt_g": 3.7
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "ヒレカツ",
+                "つけあわせ",
+                "シルバーサラダ",
+                "そうめん汁"
+              ],
+              "nutrition": {
+                "energy_kcal": 873,
+                "protein_g": 33.9,
+                "fat_g": 17.8,
+                "salt_g": 2.8
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2675,
+            "protein_g": 85.1,
+            "fat_g": 59.0,
+            "salt_g": 9.0
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2518,
+            "protein_g": 86.1,
+            "fat_g": 69.1,
+            "salt_g": 10.5
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "白菜のクリーム煮",
+            "ミニドック",
+            "野菜サラダ",
+            "味噌汁",
+            "牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 987,
+                "protein_g": 23.4,
+                "fat_g": 24.7,
+                "salt_g": 3.4
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 830,
+                "protein_g": 24.4,
+                "fat_g": 34.8,
+                "salt_g": 4.9
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ミートスパゲティー",
+                "ロールパン",
+                "ひじきのマリネ",
+                "コーヒーゼリー"
+              ],
+              "nutrition": {
+                "energy_kcal": 786,
+                "protein_g": 34.9,
+                "fat_g": 20.0,
+                "salt_g": 3.4
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [
+            "ごはん",
+            "つけあわせ",
+            "ｶﾘﾌﾗﾜｰレモンサラダ",
+            "コンソメスープ"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "鯖のカレー竜田揚げ"
+              ],
+              "nutrition": {
+                "energy_kcal": 876,
+                "protein_g": 30.7,
+                "fat_g": 24.8,
+                "salt_g": 3.5
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "鮭のちゃんちゃん焼き"
+              ],
+              "nutrition": {
+                "energy_kcal": 820,
+                "protein_g": 31.6,
+                "fat_g": 15.7,
+                "salt_g": 4.4
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2649,
+            "protein_g": 89.0,
+            "fat_g": 69.5,
+            "salt_g": 10.3
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2436,
+            "protein_g": 90.9,
+            "fat_g": 70.5,
+            "salt_g": 12.7
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "豚肉のプルコギ炒め",
+            "プリン",
+            "野菜サラダ",
+            "味噌汁",
+            "牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 883,
+                "protein_g": 25.0,
+                "fat_g": 21.0,
+                "salt_g": 2.2
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 726,
+                "protein_g": 26.0,
+                "fat_g": 31.1,
+                "salt_g": 3.7
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "鶏そぼろ丼",
+                "さつま芋とクリームチーズサラダ",
+                "味噌汁"
+              ],
+              "nutrition": {
+                "energy_kcal": 941,
+                "protein_g": 28.5,
+                "fat_g": 20.4,
+                "salt_g": 3.8
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [
+            "ごはん",
+            "つけあわせ",
+            "いんげんのピーナツ和え",
+            "クラムチャウダー"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "酢鶏"
+              ],
+              "nutrition": {
+                "energy_kcal": 1006,
+                "protein_g": 30.2,
+                "fat_g": 24.3,
+                "salt_g": 4.7
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "鶏肉の七味醤油焼き"
+              ],
+              "nutrition": {
+                "energy_kcal": 949,
+                "protein_g": 37.2,
+                "fat_g": 26.7,
+                "salt_g": 3.4
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2830,
+            "protein_g": 83.7,
+            "fat_g": 65.7,
+            "salt_g": 10.7
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2616,
+            "protein_g": 91.7,
+            "fat_g": 78.2,
+            "salt_g": 10.9
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "豆腐チャンプル",
+            "グリルチキン",
+            "野菜サラダ",
+            "味噌汁",
+            "コーヒー牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 933,
+                "protein_g": 28.0,
+                "fat_g": 25.1,
+                "salt_g": 2.9
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 776,
+                "protein_g": 29.0,
+                "fat_g": 35.2,
+                "salt_g": 4.4
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "卵とじうどん",
+                "ひじき御飯",
+                "大根なます",
+                "桃まん"
+              ],
+              "nutrition": {
+                "energy_kcal": 905,
+                "protein_g": 29.2,
+                "fat_g": 12.4,
+                "salt_g": 5.0
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "鯖のスタミナ味噌だれ",
+                "つけあわせ",
+                "小松菜のゴマ和え",
+                "味噌汁"
+              ],
+              "nutrition": {
+                "energy_kcal": 893,
+                "protein_g": 33.1,
+                "fat_g": 23.8,
+                "salt_g": 3.5
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2731,
+            "protein_g": 90.3,
+            "fat_g": 61.3,
+            "salt_g": 11.4
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2574,
+            "protein_g": 91.3,
+            "fat_g": 71.4,
+            "salt_g": 12.9
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "ほうれん草とベーコン炒め",
+            "白身魚のフライ(ｶﾗｽｶﾞﾚｲ)",
+            "野菜サラダ",
+            "味噌汁",
+            "牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 930,
+                "protein_g": 26.1,
+                "fat_g": 27.5,
+                "salt_g": 2.6
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 773,
+                "protein_g": 27.1,
+                "fat_g": 37.6,
+                "salt_g": 4.1
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "そばめし",
+                "イカリング",
+                "卵スープ",
+                "バナナ"
+              ],
+              "nutrition": {
+                "energy_kcal": 761,
+                "protein_g": 26.4,
+                "fat_g": 17.8,
+                "salt_g": 4.0
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "豚バラ大根の炒め煮",
+                "シーフードサラダ",
+                "味噌汁"
+              ],
+              "nutrition": {
+                "energy_kcal": 948,
+                "protein_g": 25.0,
+                "fat_g": 31.2,
+                "salt_g": 2.7
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2639,
+            "protein_g": 77.5,
+            "fat_g": 76.5,
+            "salt_g": 9.3
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2482,
+            "protein_g": 78.5,
+            "fat_g": 86.6,
+            "salt_g": 10.8
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-24",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "じゃがいものカレーそぼろ煮",
+            "茹で卵",
+            "野菜サラダ",
+            "味噌汁",
+            "牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 923,
+                "protein_g": 30.0,
+                "fat_g": 24.4,
+                "salt_g": 2.5
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 766,
+                "protein_g": 31.0,
+                "fat_g": 34.5,
+                "salt_g": 4.0
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "かぼちゃのオイスター炒め",
+                "水餃子",
+                "コンソメスープ"
+              ],
+              "nutrition": {
+                "energy_kcal": 975,
+                "protein_g": 31.4,
+                "fat_g": 21.8,
+                "salt_g": 4.8
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "牛とじ",
+                "ほうれん草の辛子和え",
+                "清汁"
+              ],
+              "nutrition": {
+                "energy_kcal": 840,
+                "protein_g": 30.6,
+                "fat_g": 15.3,
+                "salt_g": 2.6
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2738,
+            "protein_g": 92.0,
+            "fat_g": 61.5,
+            "salt_g": 9.9
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2581,
+            "protein_g": 93.0,
+            "fat_g": 71.6,
+            "salt_g": 11.4
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-25",
+      "meals": {
+        "breakfast": {
+          "status": "listed",
+          "common_items": [
+            "さつま芋と切り昆布の煮物",
+            "和風ツナマヨ",
+            "野菜サラダ",
+            "味噌汁",
+            "牛乳（200ml）"
+          ],
+          "options": [
+            {
+              "id": "A",
+              "items": [
+                "ごはん"
+              ],
+              "nutrition": {
+                "energy_kcal": 972,
+                "protein_g": 27.1,
+                "fat_g": 28.8,
+                "salt_g": 3.5
+              }
+            },
+            {
+              "id": "B",
+              "items": [
+                "パン",
+                "ジャム･マーガリン"
+              ],
+              "nutrition": {
+                "energy_kcal": 815,
+                "protein_g": 28.1,
+                "fat_g": 38.9,
+                "salt_g": 5.0
+              }
+            }
+          ],
+          "notes": []
+        },
+        "lunch": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "とり天",
+                "つけあわせ",
+                "きゅうりの梅おかか和え",
+                "春雨スープ"
+              ],
+              "nutrition": {
+                "energy_kcal": 755,
+                "protein_g": 28.3,
+                "fat_g": 10.4,
+                "salt_g": 2.1
+              }
+            }
+          ],
+          "notes": []
+        },
+        "dinner": {
+          "status": "listed",
+          "common_items": [],
+          "options": [
+            {
+              "id": "standard",
+              "items": [
+                "ごはん",
+                "和風チキンカレー煮",
+                "キャロットラペ",
+                "コロッケ"
+              ],
+              "nutrition": {
+                "energy_kcal": 976,
+                "protein_g": 25.2,
+                "fat_g": 28.7,
+                "salt_g": 3.3
+              }
+            }
+          ],
+          "notes": []
+        }
+      },
+      "printed_daily_totals": [
+        {
+          "id": "A",
+          "nutrition": {
+            "energy_kcal": 2703,
+            "protein_g": 80.6,
+            "fat_g": 67.9,
+            "salt_g": 8.9
+          }
+        },
+        {
+          "id": "B",
+          "nutrition": {
+            "energy_kcal": 2546,
+            "protein_g": 81.6,
+            "fat_g": 78.0,
+            "salt_g": 10.4
+          }
+        }
+      ]
+    }
+  ],
+  "warnings": []
+}

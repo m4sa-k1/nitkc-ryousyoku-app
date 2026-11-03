@@ -35,6 +35,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.m4sak1.ryousyoku.R
 import com.m4sak1.ryousyoku.model.Menu
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.testTag
+import androidx.compose.runtime.saveable.rememberSaveable
 
 val BackgroundColor = Color(0xFFFFF8F0)
 val HeaderColor = Color(0xFFFF8C42)
@@ -50,11 +56,27 @@ val MPlusRoundedFontFamily = FontFamily(
 @Composable
 fun MainScreen(
     viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToNutrition: () -> Unit = {},
+    isTextMode: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedMenuForDialog by remember { mutableStateOf<Menu?>(null) }
+    var archiveChoice by remember { mutableStateOf<Menu?>(null) }
+    var archiveTextMode by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var lastTextSetting by rememberSaveable { mutableStateOf(isTextMode) }
+    val displayText = archiveTextMode ?: isTextMode
+    LaunchedEffect(isTextMode) {
+        if (lastTextSetting != isTextMode) {
+            archiveTextMode = null
+            lastTextSetting = isTextMode
+        }
+    }
     var isImageLoaded by remember { mutableStateOf(false) }
+    val selectedMenu by viewModel.selectedMenu.collectAsState()
+    val scrollState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(selectedMenu?.filename) { isImageLoaded = false }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (val state = uiState) {
@@ -62,26 +84,30 @@ fun MainScreen(
                 // Background is handled, overlay will be drawn below
             }
             is MenuState.Success -> {
+                Column(Modifier.fillMaxSize()) {
+                Header(onNavigateToSettings = onNavigateToSettings, onNavigateToNutrition = onNavigateToNutrition)
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    state = scrollState,
+                    modifier = Modifier.weight(1f).testTag("menu-feed"),
                     contentPadding = PaddingValues(
                         bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                     )
                 ) {
-                    item {
-                        Header(onNavigateToSettings = onNavigateToSettings)
-                    }
-                    
                     item { Spacer(modifier = Modifier.height(16.dp)) }
 
                     item {
-                        state.activeMenu?.let { activeMenu ->
+                        (selectedMenu ?: state.activeMenu)?.let { activeMenu ->
                             Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                if (displayText) {
+                                    StructuredMenuBlock(viewModel,
+                                        onImage = { selectedMenuForDialog = activeMenu })
+                                } else {
                                 LatestMenuBlock(
                                     menu = activeMenu,
                                     onClick = { selectedMenuForDialog = activeMenu },
                                     onImageLoaded = { isImageLoaded = true }
                                 )
+                                }
                             }
                         }
                     }
@@ -92,7 +118,9 @@ fun MainScreen(
                         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                             ArchiveBlock(
                                 menus = state.allMenus,
-                                onClick = { selectedMenuForDialog = it }
+                                onClick = {
+                                    archiveChoice = it
+                                }
                             )
                         }
                     }
@@ -100,6 +128,7 @@ fun MainScreen(
                     item {
                         Footer()
                     }
+                }
                 }
             }
             is MenuState.Error -> {
@@ -114,9 +143,27 @@ fun MainScreen(
         }
 
         // Overlay is visible if state is Loading OR if state is Success but image is not loaded yet
-        val shouldShowLoading = uiState is MenuState.Loading || (uiState is MenuState.Success && !isImageLoaded)
+        val shouldShowLoading = uiState is MenuState.Loading ||
+            (uiState is MenuState.Success && (uiState as MenuState.Success).activeMenu != null && !displayText && !isImageLoaded)
         if (shouldShowLoading) {
             LoadingOverlay()
+        }
+
+        archiveChoice?.let { menu ->
+            ArchiveDisplayDialog(
+                period = menu.period,
+                onDismiss = { archiveChoice = null },
+                onText = {
+                    archiveChoice = null
+                    archiveTextMode = true
+                    viewModel.selectMenu(menu)
+                    scope.launch { scrollState.animateScrollToItem(0) }
+                },
+                onImage = {
+                    archiveChoice = null
+                    selectedMenuForDialog = menu
+                }
+            )
         }
 
         // Modal overlay (edge-to-edge)
@@ -131,7 +178,7 @@ fun MainScreen(
 }
 
 @Composable
-fun Header(onNavigateToSettings: () -> Unit = {}) {
+fun Header(onNavigateToSettings: () -> Unit = {}, onNavigateToNutrition: () -> Unit = {}) {
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
@@ -139,7 +186,7 @@ fun Header(onNavigateToSettings: () -> Unit = {}) {
         Row(
             modifier = Modifier
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(horizontal = 16.dp, vertical = 24.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -154,15 +201,14 @@ fun Header(onNavigateToSettings: () -> Unit = {}) {
                 textAlign = TextAlign.Start
             )
             
-            Text(
-                text = "⚙️", // Settings icon
-                fontSize = 24.sp,
-                modifier = Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onNavigateToSettings
-                )
-            )
+            Row {
+                IconButton(onClick = onNavigateToNutrition, modifier = Modifier.semantics { contentDescription = "栄養レポート" }) {
+                    NutritionIcon()
+                }
+                IconButton(onClick = onNavigateToSettings, modifier = Modifier.semantics { contentDescription = "設定" }) {
+                    Text("⚙", fontSize = 26.sp, color = MaterialTheme.colorScheme.primary)
+                }
+            }
         }
     }
 }

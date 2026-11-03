@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import com.m4sak1.ryousyoku.model.BreakfastDefault
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,9 +23,13 @@ fun SettingsScreen(
     onToggleTheme: () -> Unit,
     isPredictiveBackEnabled: Boolean,
     onTogglePredictiveBack: () -> Unit,
-    onNavigateBack: () -> Unit,
     onNavigateToRawData: (String) -> Unit,
-    onNavigateToLicenses: () -> Unit
+    onNavigateToLicenses: () -> Unit,
+    isTextMode: Boolean = false,
+    onTextModeChange: (Boolean) -> Unit = {},
+    breakfastDefault: BreakfastDefault = BreakfastDefault.NONE,
+    onBreakfastDefaultChange: (BreakfastDefault) -> Unit = {},
+    backupViewModel: MenuViewModel? = null
 ) {
     val context = LocalContext.current
     
@@ -45,14 +50,6 @@ fun SettingsScreen(
                     .windowInsetsPadding(WindowInsets.statusBars)
                     .padding(16.dp)
             ) {
-                Text(
-                    text = "← 戻る",
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 16.sp,
-                    fontFamily = MPlusRoundedFontFamily,
-                    modifier = Modifier.clickable { onNavigateBack() }
-                )
-                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "設定",
                     color = MaterialTheme.colorScheme.onBackground,
@@ -78,6 +75,40 @@ fun SettingsScreen(
             )
 
             // Theme Toggle
+            Row(Modifier.fillMaxWidth().clickable { onTextModeChange(!isTextMode) }.padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("文字で献立を表示", fontFamily = MPlusRoundedFontFamily)
+                    Text("オフにすると献立画像を表示します", fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontFamily = MPlusRoundedFontFamily)
+                }
+                Switch(checked = isTextMode, onCheckedChange = onTextModeChange)
+            }
+
+            var breakfastMenuExpanded by remember { mutableStateOf(false) }
+            Box {
+                Row(Modifier.fillMaxWidth().clickable { breakfastMenuExpanded = true }.padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("朝食のデフォルト", fontFamily = MPlusRoundedFontFamily)
+                        Text("日ごとの選択・欠食の記録を優先します", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontFamily = MPlusRoundedFontFamily)
+                    }
+                    Text("${breakfastDefault.label} ▾", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary,
+                        fontFamily = MPlusRoundedFontFamily)
+                }
+                DropdownMenu(expanded = breakfastMenuExpanded, onDismissRequest = { breakfastMenuExpanded = false }) {
+                    BreakfastDefault.entries.forEach { value ->
+                        DropdownMenuItem(text = { Text(value.label, fontFamily = MPlusRoundedFontFamily) },
+                            onClick = { onBreakfastDefaultChange(value); breakfastMenuExpanded = false })
+                    }
+                }
+            }
+            if (breakfastDefault == BreakfastDefault.BREAD) {
+                Text("パン等（B）はホットケーキなどのB献立も含みます。", fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontFamily = MPlusRoundedFontFamily)
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth().clickable { onToggleTheme() }.padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -100,6 +131,8 @@ fun SettingsScreen(
                 Switch(checked = isPredictiveBackEnabled, onCheckedChange = { onTogglePredictiveBack() })
             }
 
+            backupViewModel?.let { BackupSection(it) }
+
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "データ確認",
@@ -109,8 +142,11 @@ fun SettingsScreen(
             )
 
             // Raw Data
-            SettingsItem(text = "menus.json を確認") { onNavigateToRawData("menus") }
-            SettingsItem(text = "skip_periods.json を確認") { onNavigateToRawData("skip_periods") }
+            SettingsItem(text = "献立ファイル一覧（JSON）") { onNavigateToRawData("menus") }
+            SettingsItem(text = "解析結果一覧（JSON）") { onNavigateToRawData("structured_index") }
+            SettingsItem(text = "表示中の献立（JSON）") { onNavigateToRawData("structured_menu") }
+            SettingsItem(text = "欠食記録（一覧・JSON）") { onNavigateToRawData("meal_skips") }
+            SettingsItem(text = "提供休止期間（JSON）") { onNavigateToRawData("skip_periods") }
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -123,15 +159,15 @@ fun SettingsScreen(
             SettingsItem(text = "GitHub リポジトリ") {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/m4sa-k1/nitkc-ryousyoku-app")))
             }
-            SettingsItem(text = "運営者情報 (m4sak1)") {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://rin.gonyo.net")))
+            SettingsItem(text = "運営者情報") {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://m4sak1.me")))
             }
             SettingsItem(text = "オープンソースライセンス") {
                 onNavigateToLicenses()
             }
-            SettingsItem(text = "お問い合わせ (mail@rin.gonyo.net)") {
+            SettingsItem(text = "お問い合わせ（me@m4sak1.me）") {
                 val intent = Intent(Intent.ACTION_SENDTO).apply {
-                    data = Uri.parse("mailto:mail@rin.gonyo.net")
+                    data = Uri.parse("mailto:me@m4sak1.me")
                 }
                 context.startActivity(intent)
             }

@@ -1,6 +1,7 @@
 package com.m4sak1.ryousyoku.model
 
 import kotlinx.serialization.Serializable
+import com.m4sak1.ryousyoku.BuildConfig
 
 @Serializable
 data class Menu(
@@ -12,8 +13,8 @@ data class Menu(
         get() = filename.replace(".pdf", "")
 
     val imageUrl: String
-        get() = "https://ryousyoku.m4sak1.me/images/$baseName.png"
+        get() = "${BuildConfig.MENU_BASE_URL}images/$baseName.png"
 
     val pdfUrl: String
-        get() = "https://ryousyoku.m4sak1.me/files/$filename"
+        get() = "${BuildConfig.MENU_BASE_URL}files/$filename"
 }

@@ -19,6 +19,9 @@ val verPatch = versionProps.getProperty("patch").toInt()
 val verBuild = versionProps.getProperty("build").toInt()
 val verBeta = versionProps.getProperty("beta_version")?.toIntOrNull()
 
+// Optional local output directory for long/OneDrive workspace paths.
+providers.gradleProperty("previewBuildDir").orNull?.let { layout.buildDirectory.set(file(it)) }
+
 android {
     namespace = "com.m4sak1.ryousyoku"
     compileSdk = 34
@@ -27,6 +30,7 @@ android {
         applicationId = "com.m4sak1.ryousyoku"
         minSdk = 26
         targetSdk = 34
+        buildConfigField("String", "MENU_BASE_URL", "\"https://ryousyoku.m4sak1.me/\"")
         val verBetaNum = versionProps.getProperty("beta_version")?.toIntOrNull() ?: 0
         val displayPatch = if (verPatch == -1) 0 else verPatch
         versionName = if (verBetaNum > 0) "$verMajor.$verMinor.$displayPatch-beta.$verBetaNum" else "$verMajor.$verMinor.$displayPatch"
@@ -52,6 +56,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-dev"
+            buildConfigField("String", "MENU_BASE_URL",
+                "\"${providers.gradleProperty("menuBaseUrl").orElse("https://ryousyoku.m4sak1.me/").get()}\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -120,8 +130,9 @@ dependencies {
     implementation("com.mikepenz:aboutlibraries-compose:11.2.2")
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")

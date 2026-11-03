@@ -58,6 +58,7 @@ fun MainScreen(
     viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onNavigateToSettings: () -> Unit = {},
     onNavigateToNutrition: () -> Unit = {},
+    onNavigateToStatistics: () -> Unit = {},
     isTextMode: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -85,7 +86,7 @@ fun MainScreen(
             }
             is MenuState.Success -> {
                 Column(Modifier.fillMaxSize()) {
-                Header(onNavigateToSettings = onNavigateToSettings, onNavigateToNutrition = onNavigateToNutrition)
+                Header(onNavigateToSettings = onNavigateToSettings, onNavigateToNutrition = onNavigateToNutrition, onNavigateToStatistics = onNavigateToStatistics)
                 LazyColumn(
                     state = scrollState,
                     modifier = Modifier.weight(1f).testTag("menu-feed"),
@@ -178,7 +179,7 @@ fun MainScreen(
 }
 
 @Composable
-fun Header(onNavigateToSettings: () -> Unit = {}, onNavigateToNutrition: () -> Unit = {}) {
+fun Header(onNavigateToSettings: () -> Unit = {}, onNavigateToNutrition: () -> Unit = {}, onNavigateToStatistics: () -> Unit = {}) {
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
@@ -202,6 +203,9 @@ fun Header(onNavigateToSettings: () -> Unit = {}, onNavigateToNutrition: () -> U
             )
             
             Row {
+                IconButton(onClick = onNavigateToStatistics, modifier = Modifier.semantics { contentDescription = "献立の統計" }) {
+                    StatisticsIcon()
+                }
                 IconButton(onClick = onNavigateToNutrition, modifier = Modifier.semantics { contentDescription = "栄養レポート" }) {
                     NutritionIcon()
                 }

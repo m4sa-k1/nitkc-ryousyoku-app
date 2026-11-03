@@ -29,7 +29,8 @@ fun SettingsScreen(
     onTextModeChange: (Boolean) -> Unit = {},
     breakfastDefault: BreakfastDefault = BreakfastDefault.NONE,
     onBreakfastDefaultChange: (BreakfastDefault) -> Unit = {},
-    backupViewModel: MenuViewModel? = null
+    backupViewModel: MenuViewModel? = null,
+    onNavigateToStatistics: () -> Unit = {}
 ) {
     val context = LocalContext.current
     
@@ -144,6 +145,8 @@ fun SettingsScreen(
                 fontWeight = FontWeight.Bold,
                 fontFamily = MPlusRoundedFontFamily
             )
+
+            SettingsItem(text = "献立の統計") { onNavigateToStatistics() }
 
             // Raw Data
             SettingsItem(text = "献立ファイル一覧（JSON）") { onNavigateToRawData("menus") }

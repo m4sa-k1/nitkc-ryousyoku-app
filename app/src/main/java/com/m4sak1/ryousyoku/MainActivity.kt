@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.m4sak1.ryousyoku.ui.MainScreen
 import com.m4sak1.ryousyoku.ui.MenuViewModel
+import com.m4sak1.ryousyoku.ui.StatisticsScreen
 import com.m4sak1.ryousyoku.ui.NutritionScreen
 import com.m4sak1.ryousyoku.ui.RawDataScreen
 import com.m4sak1.ryousyoku.ui.RyousyokuTheme
@@ -103,8 +104,18 @@ class MainActivity : ComponentActivity() {
                                     viewModel = menuViewModel,
                                     isTextMode = isTextMode,
                                     onNavigateToNutrition = { navController.navigate("nutrition") },
+                                    onNavigateToStatistics = { navController.navigate("statistics") },
                                     onNavigateToSettings = { navController.navigate("settings") }
                                 )
+                            }
+                        }
+                        composable("statistics") {
+                            BackGestureWrapper(
+                                enabled = isPredictiveBackEnabled,
+                                onBack = { navController.popBackStack() },
+                                backContent = { MainScreen(viewModel = menuViewModel, isTextMode = isTextMode) }
+                            ) {
+                                StatisticsScreen(viewModel = menuViewModel)
                             }
                         }
                         composable("nutrition") {
@@ -128,6 +139,7 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 SettingsScreen(
                                     backupViewModel = menuViewModel,
+                                    onNavigateToStatistics = { navController.navigate("statistics") },
                                     breakfastDefault = breakfastDefault,
                                     onBreakfastDefaultChange = menuViewModel::setBreakfastDefault,
                                     isTextMode = isTextMode,

@@ -84,4 +84,48 @@ class MealNotificationFlowTest {
         assertFalse(body.contains("B："))
         assertFalse(body.contains("ジャム"))
     }
+    @Test fun iconChoicePersistsAndUpdatesExistingNotification() {
+        compose.onNodeWithText("通知アイコン").performScrollTo().performClick()
+        compose.onNodeWithTag("notification-icon-search").performTextReplacement("Kanji Alcohol")
+        compose.onNodeWithText("Kanji Alcohol").performClick()
+        val store = MealNotificationPreferences(context)
+        assertEquals(MealNotificationIcon.KANJI_ALCOHOL, store.icon)
+        activity.recreate()
+        compose.onNodeWithText("酒 · Kanji Alcohol").assertExists()
+        compose.onNodeWithText("通知を試す").performScrollTo().performClick()
+        compose.onNodeWithText("朝食をテスト通知").performClick()
+        val manager = context.getSystemService(NotificationManager::class.java)
+        compose.waitUntil(45_000) { manager.activeNotifications.any { it.tag == "meal-breakfast" } }
+        val first = manager.activeNotifications.single { it.tag == "meal-breakfast" }.notification
+        assertEquals(MealNotificationIcon.KANJI_ALCOHOL.drawableRes, first.smallIcon.resId)
+        val body = first.extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
+        val revision = store.revision(MealKind.BREAKFAST)
+        compose.onNodeWithText("通知アイコン").performScrollTo().performClick()
+        compose.onNodeWithTag("notification-icon-search").performTextReplacement("Rice Bowl")
+        compose.onNodeWithText("Rice Bowl").performClick()
+        compose.waitUntil(10_000) { manager.activeNotifications.any {
+            it.tag == "meal-breakfast" && it.notification.smallIcon.resId == MealNotificationIcon.RICE_BOWL.drawableRes
+        } }
+        val changed = manager.activeNotifications.single { it.tag == "meal-breakfast" }.notification
+        assertEquals(MealNotificationIcon.RICE_BOWL.drawableRes, changed.smallIcon.resId)
+        assertEquals(body, changed.extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString())
+        assertEquals(revision, store.revision(MealKind.BREAKFAST))
+        store.preferences.edit().putString("notification_icon", "removed_icon").commit()
+        assertEquals(MealNotificationIcon.FORK_SPOON, store.icon)
+    }
+
+    @Test fun allBundledSymbolsHaveVisibleTransparentMasks() {
+        MealNotificationIcon.entries.forEach { icon ->
+            val drawable = context.getDrawable(icon.drawableRes)!!
+            val bitmap = android.graphics.Bitmap.createBitmap(48, 48, android.graphics.Bitmap.Config.ARGB_8888)
+            drawable.setBounds(0, 0, 48, 48)
+            drawable.draw(android.graphics.Canvas(bitmap))
+            val pixels = IntArray(48 * 48)
+            bitmap.getPixels(pixels, 0, 48, 0, 0, 48, 48)
+            val visible = pixels.count { android.graphics.Color.alpha(it) > 0 }
+            assertTrue("${icon.key} must have a visible transparent mask", visible in 1 until pixels.size)
+            bitmap.recycle()
+        }
+    }
+
 }

@@ -38,6 +38,7 @@ fun NotificationSettingsSection() {
     val context = LocalContext.current
     val store = remember { MealNotificationPreferences(context) }
     var settings by remember { mutableStateOf(MealKind.entries.associateWith(store::get)) }
+    var icon by remember { mutableStateOf(store.icon) }
     var systemVersion by remember { mutableIntStateOf(0) }
     var editing by rememberSaveable { mutableStateOf<MealKind?>(null) }
     var testing by rememberSaveable { mutableStateOf(false) }
@@ -55,6 +56,7 @@ fun NotificationSettingsSection() {
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) {
             systemVersion++
             settings = MealKind.entries.associateWith(store::get)
+            icon = store.icon
             MealNotificationScheduler.rescheduleAll(context)
         } }
         owner.lifecycle.addObserver(observer)
@@ -74,6 +76,11 @@ fun NotificationSettingsSection() {
         Text("献立通知", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontFamily = MPlusRoundedFontFamily)
         Text("毎日・日本時間。朝食のデフォルトがある場合は、その献立と共通料理を通知します。未設定ならA/Bを両方表示します。",
             fontSize = 12.sp, fontFamily = MPlusRoundedFontFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        NotificationIconSelector(icon) { selected ->
+            store.setIcon(selected)
+            icon = selected
+            MealNotificationDelivery.refreshIcons(context)
+        }
         MealKind.entries.forEach { kind ->
             val setting = settings.getValue(kind)
             Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp),

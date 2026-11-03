@@ -23,6 +23,8 @@ class MealNotificationPreferences(context: Context) {
             preferences.getInt("${kind.key}_hour", default.hour).coerceIn(0, 23),
             preferences.getInt("${kind.key}_minute", 0).coerceIn(0, 59))
     }
+    val icon: MealNotificationIcon get() = MealNotificationIcon.fromKey(preferences.getString("notification_icon", null))
+    fun setIcon(value: MealNotificationIcon) { preferences.edit().putString("notification_icon", value.key).apply() }
     fun revision(kind: MealKind) = preferences.getLong("${kind.key}_revision", 0)
     fun set(kind: MealKind, setting: MealNotificationSetting) {
         preferences.edit().putBoolean("${kind.key}_enabled", setting.enabled)

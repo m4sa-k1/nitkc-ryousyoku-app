@@ -1,0 +1,35 @@
+Google Material Symbols (Outlined, 24px, weight 400)
+Copyright Google LLC
+Source: https://github.com/google/material-design-icons
+Revision: 10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7
+License: Apache-2.0 (see LICENSE)
+Modification: SVG viewBox translated to Android VectorDrawable coordinates; path shapes unchanged.
+
+symbols/web/fork_spoon/materialsymbolsoutlined/fork_spoon_24px.svg
+symbols/web/kanji_alcohol/materialsymbolsoutlined/kanji_alcohol_24px.svg
+symbols/web/restaurant/materialsymbolsoutlined/restaurant_24px.svg
+symbols/web/rice_bowl/materialsymbolsoutlined/rice_bowl_24px.svg
+symbols/web/set_meal/materialsymbolsoutlined/set_meal_24px.svg
+symbols/web/bento/materialsymbolsoutlined/bento_24px.svg
+symbols/web/ramen_dining/materialsymbolsoutlined/ramen_dining_24px.svg
+symbols/web/udon/materialsymbolsoutlined/udon_24px.svg
+symbols/web/soba/materialsymbolsoutlined/soba_24px.svg
+symbols/web/japanese_curry/materialsymbolsoutlined/japanese_curry_24px.svg
+symbols/web/washoku/materialsymbolsoutlined/washoku_24px.svg
+symbols/web/menu_book/materialsymbolsoutlined/menu_book_24px.svg
+symbols/web/breakfast_dining/materialsymbolsoutlined/breakfast_dining_24px.svg
+symbols/web/bakery_dining/materialsymbolsoutlined/bakery_dining_24px.svg
+symbols/web/lunch_dining/materialsymbolsoutlined/lunch_dining_24px.svg
+symbols/web/local_pizza/materialsymbolsoutlined/local_pizza_24px.svg
+symbols/web/fastfood/materialsymbolsoutlined/fastfood_24px.svg
+symbols/web/egg/materialsymbolsoutlined/egg_24px.svg
+symbols/web/cooking/materialsymbolsoutlined/cooking_24px.svg
+symbols/web/dinner_dining/materialsymbolsoutlined/dinner_dining_24px.svg
+symbols/web/cake/materialsymbolsoutlined/cake_24px.svg
+symbols/web/cookie/materialsymbolsoutlined/cookie_24px.svg
+symbols/web/icecream/materialsymbolsoutlined/icecream_24px.svg
+symbols/web/local_cafe/materialsymbolsoutlined/local_cafe_24px.svg
+symbols/web/coffee/materialsymbolsoutlined/coffee_24px.svg
+symbols/web/local_drink/materialsymbolsoutlined/local_drink_24px.svg
+symbols/web/sports_bar/materialsymbolsoutlined/sports_bar_24px.svg
+symbols/web/liquor/materialsymbolsoutlined/liquor_24px.svg

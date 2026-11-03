@@ -1,5 +1,6 @@
 package com.m4sak1.ryousyoku.notifications
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -8,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.m4sak1.ryousyoku.MainActivity
-import com.m4sak1.ryousyoku.R
 import com.m4sak1.ryousyoku.model.*
 import com.m4sak1.ryousyoku.repository.MenuRepository
 import kotlinx.coroutines.CancellationException
@@ -25,6 +25,22 @@ class MealNotificationWorker(context: Context, parameters: WorkerParameters) : C
 }
 
 object MealNotificationDelivery {
+    fun refreshIcons(context: Context) {
+        if (!MealNotificationScheduler.canNotify(context)) return
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val icon = MealNotificationPreferences(context).icon.drawableRes
+        val tags = MealKind.entries.map { "meal-${it.key}" }.toSet()
+        try {
+            manager.activeNotifications.filter { it.tag in tags }.forEach { posted ->
+                if (posted.notification.smallIcon?.resId != icon) {
+                    val updated = Notification.Builder.recoverBuilder(context, posted.notification)
+                        .setSmallIcon(icon).setOnlyAlertOnce(true).build()
+                    manager.notify(posted.tag, posted.id, updated)
+                }
+            }
+        } catch (_: SecurityException) { /* Permission can change while settings is open. */ }
+    }
+
     suspend fun deliver(context: Context, kind: MealKind, date: LocalDate, revision: Long, preview: Boolean = false) {
         val store = MealNotificationPreferences(context)
         fun valid(): Boolean = MealNotificationScheduler.canNotify(context) && (preview ||
@@ -62,7 +78,7 @@ object MealNotificationDelivery {
         val content = mealNotificationContent(date, kind, meal, breakfastDefault, fromCache)
         val open = PendingIntent.getActivity(context, kind.ordinal, Intent(context, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val notification = NotificationCompat.Builder(context, MEAL_CHANNEL).setSmallIcon(R.drawable.ic_meal_notification)
+        val notification = NotificationCompat.Builder(context, MEAL_CHANNEL).setSmallIcon(store.icon.drawableRes)
             .setContentTitle(content.title).setContentText(content.body.replace('\n', ' '))
             .setStyle(NotificationCompat.BigTextStyle().bigText(content.body)).setContentIntent(open)
             .setAutoCancel(true).setOnlyAlertOnce(!preview).build()
